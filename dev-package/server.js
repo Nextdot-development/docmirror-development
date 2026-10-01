@@ -7,6 +7,7 @@ const { verifyAuditCacheTable } = require('./lib/supabase-client');
 const { discoverAuditCacheSchema } = require('./lib/audit-cache-schema');
 const { verifyGmailConnection } = require('./lib/gmail');
 const { verifyReportsBucket } = require('./routes/report');
+const pricingSsr = require('./lib/pricing-ssr');
 
 const express = require('express');
 const cors    = require('cors');
@@ -107,13 +108,22 @@ const CLEAN_PAGES = {
   '/terms':                         'terms.html',
   '/about':                         'about.html',
   '/contact':                       'contact.html',
-  '/pricing':                       'pricing.html',
   '/help-center':                   'help-center.html',
 };
 for (const [cleanPath, file] of Object.entries(CLEAN_PAGES)) {
   app.get(cleanPath,          (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pages', file)));
   app.get('/pages/' + file,   (_req, res) => res.redirect(301, cleanPath));
 }
+
+// /pricing (and the homepage + agency signup below) inline their prices as
+// server-resolved JSON instead of plain res.sendFile — see lib/pricing-ssr.js
+// for why: the client-side /api/client-config fetch that used to be the ONLY
+// source for these prices has no fallback, so any failure of that one fetch
+// left every price frozen at its "—" placeholder.
+app.get('/pricing', (req, res) => {
+  res.send(pricingSsr.renderPricingPage(path.join(__dirname, 'public', 'pages', 'pricing.html'), req));
+});
+app.get('/pages/pricing.html', (_req, res) => res.redirect(301, '/pricing'));
 
 // ── Migrated guides → Resources blog engine ──────────────────────────────────
 // The old hand-coded guide pages now live in the Markdown Resources system.
@@ -192,6 +202,15 @@ for (const [cleanPath, file] of Object.entries(ADMIN_PAGES)) {
 app.get('/admin/blogs/:id/edit', (_req, res) => {
   res.set('X-Robots-Tag', 'noindex, nofollow');
   res.sendFile(path.join(__dirname, 'public', 'admin', 'editor.html'));
+});
+
+// Homepage + agency signup also inline server-resolved prices — see
+// lib/pricing-ssr.js and the /pricing route above for why.
+app.get('/', (req, res) => {
+  res.send(pricingSsr.renderPricingPage(path.join(__dirname, 'public', 'index.html'), req));
+});
+app.get('/pages/agency-signup.html', (req, res) => {
+  res.send(pricingSsr.renderPricingPage(path.join(__dirname, 'public', 'pages', 'agency-signup.html'), req));
 });
 
 // ── Static site ────────────────────────────────────────────────────────────

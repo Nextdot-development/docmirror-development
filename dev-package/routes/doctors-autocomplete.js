@@ -99,7 +99,7 @@ async function handler(req, res) {
 
     return res.status(200).json(results);
   } catch (err) {
-    console.error('[autocomplete] error:', err.message);
+    console.error(`[autocomplete] error query="${query}" city="${city}": ${err.message}`);
     return res.status(500).json({ error: 'Autocomplete failed' });
   }
 }
