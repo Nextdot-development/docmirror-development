@@ -214,19 +214,26 @@
     el.innerHTML = PLANS.map(build).join('');
 
     // The cards were injected after boot, so their [data-price] spans and the
-    // agency doctor-limit still hold their em-dash placeholder. Fill both from
-    // the same /api/client-config payload once it lands.
+    // agency doctor-limit still hold their em-dash placeholder.
+    var fillFrom = function (cfg) {
+      var prices = cfg && cfg.prices;
+      if (window.TDMPricing && prices) window.TDMPricing.apply(prices, el);
+      var a = prices && prices.agency;
+      if (a && a.profileLimit != null) {
+        var lim = el.querySelectorAll('[data-plan-limit="agency"]');
+        for (var i = 0; i < lim.length; i++) lim[i].textContent = a.profileLimit;
+      }
+    };
+
+    // Server-rendered snapshot (see lib/pricing-ssr.js) — these elements were
+    // just created, so pricing-display.js's own boot-time apply() never saw
+    // them. Fill immediately, THEN let /api/client-config correct it once it
+    // lands, same two-layer pattern as pricing-display.js itself.
+    if (window.TDM_PRICING_INLINE) fillFrom(window.TDM_PRICING_INLINE);
+
     if (window.TDMPricing) {
-      var fill = function (cfg) {
-        window.TDMPricing.refresh(el);
-        var a = (cfg && cfg.prices && cfg.prices.agency) ||
-                (window.TDM_PRICING && window.TDM_PRICING.prices && window.TDM_PRICING.prices.agency);
-        if (a && a.profileLimit != null) {
-          var lim = el.querySelectorAll('[data-plan-limit="agency"]');
-          for (var i = 0; i < lim.length; i++) lim[i].textContent = a.profileLimit;
-        }
-      };
-      window.TDMPricing.ready ? window.TDMPricing.ready.then(fill) : fill();
+      var onReady = function (cfg) { fillFrom(cfg || window.TDM_PRICING); };
+      window.TDMPricing.ready ? window.TDMPricing.ready.then(onReady) : onReady();
     }
     return el;
   }

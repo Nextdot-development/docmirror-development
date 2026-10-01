@@ -800,7 +800,12 @@ async function handler(req, res) {
     return res.status(200).json(auditData);
 
   } catch (err) {
-    console.error('[audit] error:', err.message);
+    // No IP/geo region gates this flow (region here is derived from the
+    // searched city, never the visitor's country — see detectRegion() calls
+    // above), so ct/sp are logged instead: the dimension that actually varies
+    // this handler's behavior, and what an international-visitor-only failure
+    // would need for diagnosis.
+    console.error(`[audit] error city="${ct || ''}" specialty="${sp || ''}": ${err.message}`);
     return res.status(500).json({ error: 'Audit failed. Please try again.' });
   }
 }

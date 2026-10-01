@@ -188,14 +188,19 @@ function ready(){
 }
 
 // The doctor limit shown on this page comes from ORG_PLANS, same as the price.
+function fillAgencyLimit(cfg) {
+  var a = cfg && cfg.prices && cfg.prices.agency;
+  if (!a || a.profileLimit == null) return;
+  var els = document.querySelectorAll('[data-plan-limit="agency"]');
+  for (var i = 0; i < els.length; i++) els[i].textContent = a.profileLimit;
+}
+// Server-rendered snapshot (see lib/pricing-ssr.js) — fills instantly, no
+// dependency on /api/client-config succeeding. That fetch still runs and
+// corrects this afterward if needed (e.g. a logged-in buyer's locked currency).
+if (window.TDM_PRICING_INLINE) fillAgencyLimit(window.TDM_PRICING_INLINE);
 document.addEventListener('DOMContentLoaded', function () {
   if (!window.TDMPricing || !window.TDMPricing.ready) return;
-  window.TDMPricing.ready.then(function (cfg) {
-    var a = cfg && cfg.prices && cfg.prices.agency;
-    if (!a || a.profileLimit == null) return;
-    var els = document.querySelectorAll('[data-plan-limit="agency"]');
-    for (var i = 0; i < els.length; i++) els[i].textContent = a.profileLimit;
-  });
+  window.TDMPricing.ready.then(fillAgencyLimit);
 });
 
 function loadRzp(cb) {

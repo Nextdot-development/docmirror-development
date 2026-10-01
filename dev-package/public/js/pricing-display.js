@@ -109,6 +109,20 @@
   function boot() {
     var fromUrl = urlRegion();
     if (fromUrl) setStoredRegion(fromUrl);
+
+    // Apply the server-rendered snapshot (see lib/pricing-ssr.js) IMMEDIATELY,
+    // before the fetch below even starts. This is what makes a price correct
+    // on first paint instead of sitting at "—" until /api/client-config
+    // resolves — and it's what keeps a price correct if that fetch later fails
+    // outright: apply() already ran, so there is nothing left to blank out.
+    // The fetch is still the authoritative source (a logged-in buyer's locked
+    // currency, an explicit switcher region) and overwrites this the moment it
+    // lands; this is strictly a fallback, never the last word when both exist.
+    if (window.TDM_PRICING_INLINE) {
+      window.TDM_PRICING = window.TDM_PRICING_INLINE;
+      apply(window.TDM_PRICING_INLINE.prices);
+    }
+
     window.TDMPricing.ready = load(fromUrl || storedRegion());
   }
   if (document.readyState === 'loading') {
