@@ -806,7 +806,9 @@ table.ldr-table td:first-child{font-family:'DM Sans',sans-serif;font-weight:600;
     rows.forEach(function(r){
       html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:.85rem"><span style="color:var(--slate-light)">' + r[0] + '</span><span style="font-weight:700;color:' + r[2] + '">' + escH(r[1]) + '</span></div>';
     });
-    if (organic && d.profileUrl) html += '<a href="' + escH(d.profileUrl) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:.8rem;color:var(--green-dark);text-decoration:underline">View profile &rarr;</a>';
+    if (organic && d.profileUrl) html += '<a href="' + escH(d.profileUrl) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;margin-right:10px;font-size:.8rem;color:var(--green-dark);text-decoration:underline">View profile &rarr;</a>';
+    // Direct CTA to create one — the single most important fix for this doctor.
+    html += '<a href="https://business.google.com/create" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--green);color:#fff;text-decoration:none;font-weight:700;font-size:.8rem;padding:9px 16px;border-radius:8px">Create your Google Business Profile &rarr;</a>';
     html += '</div>';
     var hero = document.querySelector('.report-hero');
     if (hero && hero.parentNode) { var div = document.createElement('div'); div.innerHTML = html; hero.parentNode.insertBefore(div.firstChild, hero.nextSibling); }

@@ -1431,9 +1431,12 @@ function adOnScanResult(d, p) {
     note.textContent = 'We’ll save this exact Google listing with the profile, so every future audit runs against it instead of searching by name.';
   } else {
     note.className = 'ad-note warn';
-    note.textContent = d.source === 'organic_profile'
+    var warnMsg = d.source === 'organic_profile'
       ? 'Found in organic search, but there is no Google Business Profile to pin. You can still add this doctor — audits will search by name.'
       : 'No public Google Business Profile found. You can still add this doctor — audits will search by name until a listing exists.';
+    // Direct link to create one — same CTA as the free-scan preview report.
+    note.innerHTML = escH(warnMsg) +
+      ' <a href="https://business.google.com/create" target="_blank" rel="noopener" style="font-weight:700;text-decoration:underline">Create a Google Business Profile &rarr;</a>';
   }
   adStep('result');
 }
