@@ -23,8 +23,19 @@
 .dm-nav-login:hover{color:#0A2540}\
 .dm-nav-cta{background:#0A2540;color:#fff;padding:8px 18px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:background .15s;white-space:nowrap}\
 .dm-nav-cta:hover{background:#00A878;color:#fff}\
-@media(max-width:760px){.dm-nav-mid{display:none}}\
-@media(max-width:480px){.dm-nav-login{display:none}}\
+.dm-nav-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;margin:0;-webkit-tap-highlight-color:transparent}\
+.dm-nav-toggle svg{width:22px;height:22px;display:block}\
+.dm-nav-toggle .dm-icon-close{display:none}\
+.dm-nav-toggle[aria-expanded="true"] .dm-icon-menu{display:none}\
+.dm-nav-toggle[aria-expanded="true"] .dm-icon-close{display:block}\
+.dm-nav-mobile{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:#fff;z-index:999;overflow-y:auto;padding:0.5rem clamp(1rem,4vw,2.5rem) 2rem;flex-direction:column}\
+.dm-nav-mobile.dm-open{display:flex}\
+.dm-nav-mobile a{font-size:17px;color:#0A2540;text-decoration:none;font-weight:600;padding:16px 4px;border-bottom:1px solid #E2E8F0}\
+.dm-nav-mobile .dm-nav-mobile-login{color:#6B7A8D;font-weight:500}\
+.dm-nav-mobile .dm-nav-mobile-cta{margin-top:20px;background:#0A2540;color:#fff;text-align:center;border-radius:10px;padding:15px;font-weight:700;border-bottom:none}\
+body.dm-nav-locked{overflow:hidden}\
+@media(max-width:760px){.dm-nav-mid{display:none}.dm-nav-toggle{display:flex}}\
+@media(max-width:480px){.dm-nav-right>.dm-nav-login{display:none}}\
 .dm-footer{width:100%;margin:0;background:#0D1B35;padding:56px 1rem 24px;display:flex;justify-content:center;text-align:left;font-family:"DM Sans",system-ui,sans-serif}\
 .dm-footer-card{width:100%;max-width:1200px;margin:0 auto;background:#102343;border-radius:32px;padding:48px 48px 32px;box-shadow:0 30px 80px rgba(4,18,45,.18)}\
 .dm-footer-grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:32px}\
@@ -68,8 +79,21 @@
   <div class="dm-nav-right">\
     <a class="dm-nav-login" href="/pages/auth.html?tab=login">Log In</a>\
     <a class="dm-nav-cta" href="/#tool">Check my listing free</a>\
+    <button class="dm-nav-toggle" id="dm-nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="dm-nav-mobile">\
+      <svg class="dm-icon-menu" viewBox="0 0 24 24" fill="none" stroke="#0A2540" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>\
+      <svg class="dm-icon-close" viewBox="0 0 24 24" fill="none" stroke="#0A2540" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>\
+    </button>\
   </div>\
-</nav>';
+</nav>\
+<div class="dm-nav-mobile" id="dm-nav-mobile">\
+  <a href="/">Home</a>\
+  <a href="/resources">Resources</a>\
+  <a href="/pricing">Pricing</a>\
+  <a href="/about">About</a>\
+  <a href="/#faq">FAQ</a>\
+  <a class="dm-nav-login dm-nav-mobile-login" href="/pages/auth.html?tab=login">Log In</a>\
+  <a class="dm-nav-cta dm-nav-mobile-cta" href="/#tool">Check my listing free</a>\
+</div>';
 
   var FOOTER = '\
 <footer class="dm-footer">\
@@ -198,19 +222,55 @@
 
   // Swap the static "Log In" link for "Dashboard" + "Log out" when a session
   // exists, so the header is never inconsistent with the actual login state.
+  // Runs for EVERY .dm-nav-login on the page — the desktop nav's and the
+  // mobile dropdown's copy both carry that class, so both stay in sync.
   function applyNavAuth() {
-    var loginLink = document.querySelector('.dm-nav-login');
-    if (!loginLink || !isLoggedIn()) return; // logged out → keep "Log In"
-    loginLink.textContent = 'Dashboard';
-    loginLink.setAttribute('href', '/dashboard.html');
-    if (!document.querySelector('.dm-nav-logout')) {
+    if (!isLoggedIn()) return; // logged out → keep "Log In" everywhere
+    var loginLinks = document.querySelectorAll('.dm-nav-login:not(.dm-nav-logout)');
+    for (var i = 0; i < loginLinks.length; i++) {
+      var loginLink = loginLinks[i];
+      loginLink.textContent = 'Dashboard';
+      loginLink.setAttribute('href', '/dashboard.html');
+      if (loginLink.nextSibling && loginLink.nextSibling.classList && loginLink.nextSibling.classList.contains('dm-nav-logout')) continue;
       var out = document.createElement('a');
-      out.className = 'dm-nav-login dm-nav-logout';
+      // Same classes as the link it follows (so a mobile-panel logout link
+      // picks up dm-nav-mobile-login's spacing/weight too) plus dm-nav-logout.
+      out.className = loginLink.className + ' dm-nav-logout';
       out.href = '/';
       out.textContent = 'Log out';
       out.addEventListener('click', tdmLogout);
       loginLink.parentNode.insertBefore(out, loginLink.nextSibling);
     }
+  }
+
+  // ── Mobile nav dropdown ────────────────────────────────────────────────────
+  function setupMobileNav() {
+    var toggle = document.getElementById('dm-nav-toggle');
+    var panel  = document.getElementById('dm-nav-mobile');
+    if (!toggle || !panel) return;
+
+    function setOpen(open) {
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      panel.classList.toggle('dm-open', open);
+      document.body.classList.toggle('dm-nav-locked', open);
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(!panel.classList.contains('dm-open'));
+    });
+    // Any link inside the panel navigates away or jumps to an anchor — close it either way.
+    panel.addEventListener('click', function (ev) {
+      if (ev.target.closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && panel.classList.contains('dm-open')) setOpen(false);
+    });
+    // A resize past the mobile breakpoint (e.g. rotating a tablet) shouldn't
+    // leave the panel stuck open with the desktop nav now also visible.
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 760 && panel.classList.contains('dm-open')) setOpen(false);
+    });
   }
 
   function mount() {
@@ -224,8 +284,9 @@
     if (h) h.innerHTML = HEADER;
     var f = document.getElementById('dm-footer');
     if (f) f.innerHTML = FOOTER;
-    applyNavAuth();  // reflect login state in the nav
-    loadCompany(); // fill footer + page-level [data-company] spans
+    applyNavAuth();    // reflect login state in the nav
+    setupMobileNav();  // wire the hamburger toggle (only present if #dm-header was mounted)
+    loadCompany();     // fill footer + page-level [data-company] spans
   }
 
   if (document.readyState === 'loading') {
