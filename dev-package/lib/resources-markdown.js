@@ -24,6 +24,7 @@ const fs     = require('fs');
 const path   = require('path');
 const matter = require('gray-matter');
 const { marked } = require('marked');
+const { stripInternalLinks } = require('./strip-internal-links');
 
 const RESOURCES_DIR = path.join(__dirname, '..', 'content', 'resources');
 const SITE = 'https://www.thedocmirror.com';
@@ -116,8 +117,13 @@ function parseFile(file) {
     return null;
   }
 
-  const { data, content } = matter(raw);
+  const { data, content: rawContent } = matter(raw);
   if (data.published === false || data.draft === true) return null;
+
+  // Stripped here, once, before anything derives html/excerpt/reading-time
+  // from it below — an editorial "Internal Links" planning section must
+  // never reach a reader, in the rendered body OR anything summarized from it.
+  const content = stripInternalLinks(rawContent);
 
   const slug  = data.slug ? slugify(data.slug) : slugify(file);
   const title = data.title || slug.replace(/-/g, ' ');
