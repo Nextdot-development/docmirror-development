@@ -21,6 +21,7 @@ require('../../lib/env');
 const { getSupabaseClient, withSupabaseRetry, formatFetchError } = require('../../lib/supabase-client');
 const { slugify, getAllResources, getResourceBySlug } = require('../../lib/resources');
 const { readingTimeMinutes, autoExcerpt, BASE_PATH } = require('../../lib/blog-post-mapper');
+const { stripInternalLinks } = require('../../lib/strip-internal-links');
 // Reused rather than re-derived: the list, the dashboard counts and the public
 // read must agree on what "published right now" means, down to the edge case of
 // a row marked 'published' with a future date.
@@ -207,7 +208,11 @@ function buildFields(body, { existing = null } = {}) {
   f.slug = slug;
 
   f.excerpt          = String(body.excerpt || '').trim();
-  f.content_md       = sanitiseMarkdown(body.content_md);
+  // Strip the editorial "Internal Links" planning section at save time too —
+  // same rule lib/blog-post-mapper.js applies at read time — so a post is
+  // stored clean from the moment it's created/published, not just rendered
+  // clean. Sanitise first (strip dangerous markup), then strip the section.
+  f.content_md       = stripInternalLinks(sanitiseMarkdown(body.content_md));
   f.author           = String(body.author || '').trim() || 'The Doc Mirror';
   f.category         = String(body.category || '').trim() || 'Guide';
   f.tags             = cleanStringArray(body.tags, { max: 30 });

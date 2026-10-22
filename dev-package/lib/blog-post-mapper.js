@@ -24,6 +24,7 @@ const { marked } = require('marked');
 // on nothing inside the resources layer, so there is no cycle. Both names are
 // the same objects the orchestrator re-exports.
 const { SITE, slugify } = require('./resources-markdown');
+const { stripInternalLinks } = require('./strip-internal-links');
 
 // The base path resource URLs are built from. Kept as a constant rather than
 // read from config: these URLs are indexed, and a stray env var must never be
@@ -124,7 +125,10 @@ function isPublic(row, now = Date.now()) {
 function mapRow(row) {
   const slug  = slugify(row.slug || '');
   const title = String(row.title || slug.replace(/-/g, ' '));
-  const md    = String(row.content_md || '');
+  // Stripped here, once, before anything derives excerpt/html/reading-time
+  // from it below — an editorial "Internal Links" planning section must
+  // never reach a reader, in the rendered body OR anything summarized from it.
+  const md    = stripInternalLinks(String(row.content_md || ''));
 
   const excerpt = String(row.excerpt || '').trim() || autoExcerpt(md);
   const tags    = Array.isArray(row.tags) ? row.tags.map(String).filter(Boolean) : [];
