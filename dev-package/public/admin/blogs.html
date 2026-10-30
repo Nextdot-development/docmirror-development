@@ -37,8 +37,8 @@
           <option value="">All categories</option>
         </select>
         <select class="adm-sel" id="sort" aria-label="Sort by">
+          <option value="published_at">Publish date (newest)</option>
           <option value="updated_at">Recently updated</option>
-          <option value="published_at">Publish date</option>
           <option value="created_at">Recently created</option>
           <option value="title">Title (A–Z)</option>
         </select>
@@ -80,19 +80,46 @@
     { key: 'archived',  label: 'Archived' },
   ];
 
-  var state = { status: '', q: '', category: '', sort: 'updated_at', counts: null, rows: [] };
+  // Publish date, newest first, by default — never updated_at, or a post that
+  // was just re-published (keeping its original date) jumps to the top.
+  var state = { status: '', q: '', category: '', sort: 'published_at', dir: '', counts: null, rows: [] };
   var timer = null;
+
+  // Sortable headers: [label, sort key or null, column class for responsive hiding]
+  var COLUMNS = [
+    ['Title',        'title',             'col-title'],
+    ['Category',     'category',          'col-cat'],
+    ['Status',       'status',            'col-status'],
+    ['Publish date', 'published_at',      'col-pub'],
+    ['Updated',      'updated_at',        'col-upd'],
+    ['Created by',   null,                'col-by'],
+    ['Read',         'read_time_minutes', 'col-read'],
+    ['Actions',      null,                'col-act'],
+  ];
 
   // ── rendering ────────────────────────────────────────────────────────────
 
+  /** Date on one line, time under it — so the column stays narrow. */
   function fmtDate(iso) {
     if (!iso) return '<span class="adm-table-date">—</span>';
     var d = new Date(iso);
     if (isNaN(d.getTime())) return '<span class="adm-table-date">—</span>';
-    var text = d.toLocaleString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-    return '<span class="adm-table-date" title="' + esc(iso) + ' (UTC)">' + esc(text) + '</span>';
+    var day = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    var time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return '<span class="adm-table-date" title="' + esc(iso) + ' (UTC)">' + esc(day) + '</span>' +
+           '<div class="adm-table-sub adm-nowrap">' + esc(time) + '</div>';
+  }
+
+  function defaultDir(key) { return (key === 'title' || key === 'category') ? 'asc' : 'desc'; }
+
+  function headerCell(c) {
+    if (!c[1]) return '<th class="' + c[2] + '">' + esc(c[0]) + '</th>';
+    var active = state.sort === c[1];
+    var dir = active ? (state.dir || defaultDir(c[1])) : '';
+    var arrow = active ? (dir === 'asc' ? ' ▲' : ' ▼') : '';
+    return '<th class="' + c[2] + ' is-sortable' + (active ? ' is-sorted' : '') + '" data-sort="' + c[1] + '"' +
+           ' aria-sort="' + (active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none') + '">' +
+           esc(c[0]) + arrow + '</th>';
   }
 
   function chip(effective, raw) {
@@ -131,10 +158,13 @@
       out += '<button type="button" class="adm-x" data-act="save_draft" data-id="' + id + '">Unpublish</button>';
     }
 
-    if (r.effective_status !== 'archived') {
+    if (r.effective_status === 'archived') {
+      out += '<button type="button" class="adm-x" data-act="unarchive" data-id="' + id + '">Unarchive</button>';
+    } else {
       out += '<button type="button" class="adm-x" data-act="archive" data-id="' + id + '">Archive</button>';
     }
 
+    out += '<button type="button" class="adm-x" data-act="duplicate" data-id="' + id + '">Duplicate</button>';
     out += '<button type="button" class="adm-x" data-act="delete" data-id="' + id + '">Delete</button>';
     return '<div class="adm-rowacts">' + out + '</div>';
   }
@@ -168,22 +198,24 @@
     }
 
     var html =
-      '<div class="adm-table-wrap"><table class="adm-table">' +
-      '<thead><tr><th>Title</th><th>Status</th><th>Category</th>' +
-      '<th>Publish date</th><th>Updated</th><th>Actions</th></tr></thead><tbody>';
+      '<div class="adm-table-wrap"><table class="adm-table adm-table--blogs">' +
+      '<thead><tr>' + COLUMNS.map(headerCell).join('') + '</tr></thead><tbody>';
 
     rows.forEach(function (r) {
+      var by = r.created_by_email ? r.created_by_email.split('@')[0] : '—';
       html +=
         '<tr data-row-id="' + esc(r.id) + '">' +
-        '<td><a class="adm-table-title" href="/admin/blogs/' + esc(r.id) + '/edit" style="text-decoration:none">' +
+        '<td class="col-title"><a class="adm-table-title" href="/admin/blogs/' + esc(r.id) + '/edit" style="text-decoration:none">' +
         (r.is_public ? '<span class="adm-live-dot" title="Public right now"></span>' : '') +
         esc(r.title || '(untitled)') + '</a>' +
         '<div class="adm-table-slug">/resources/' + esc(r.slug || '') + '</div></td>' +
-        '<td>' + chip(r.effective_status, r.status) + '</td>' +
-        '<td>' + esc(r.category || '—') + '</td>' +
-        '<td>' + fmtDate(r.published_at) + '</td>' +
-        '<td>' + fmtDate(r.updated_at) + '</td>' +
-        '<td class="is-tight">' + rowActions(r) + '</td>' +
+        '<td class="col-cat adm-nowrap">' + esc(r.category || '—') + '</td>' +
+        '<td class="col-status">' + chip(r.effective_status, r.status) + '</td>' +
+        '<td class="col-pub">' + fmtDate(r.published_at) + '</td>' +
+        '<td class="col-upd">' + fmtDate(r.updated_at) + '</td>' +
+        '<td class="col-by adm-nowrap adm-table-sub" title="' + esc(r.created_by_email || '') + '">' + esc(by) + '</td>' +
+        '<td class="col-read adm-nowrap">' + (r.read_time_minutes ? esc(String(r.read_time_minutes)) + ' min' : '—') + '</td>' +
+        '<td class="col-act is-tight">' + rowActions(r) + '</td>' +
         '</tr>';
     });
 
@@ -208,7 +240,8 @@
   // ── loading ──────────────────────────────────────────────────────────────
 
   async function load() {
-    var qs = '?limit=200&sort=' + encodeURIComponent(state.sort);
+    var qs = '?limit=200&sort=' + encodeURIComponent(state.sort) +
+             (state.dir ? '&dir=' + encodeURIComponent(state.dir) : '');
     if (state.status)   qs += '&status='   + encodeURIComponent(state.status);
     if (state.q)        qs += '&q='        + encodeURIComponent(state.q);
     if (state.category) qs += '&category=' + encodeURIComponent(state.category);
@@ -286,6 +319,7 @@
     }
 
     var verb = { publish: 'published', save_draft: 'moved back to draft', archive: 'archived' }[action] || 'updated';
+    if (action === 'save_draft' && r.effective_status === 'archived') verb = 'unarchived — it is a draft again';
     showMsg('"' + (res.body.post ? res.body.post.title : r.title) + '" ' + verb + '.', 'info');
     await refresh();
   }
@@ -362,10 +396,39 @@
     if (!b) return;
     var id = b.dataset.id;
     var act = b.dataset.act;
-    if (act === 'delete')  { deletePost(id); return; }
-    if (act === 'preview') { previewPost(id); return; }
-    changeStatus(id, act);
+    if (act === 'delete')    { deletePost(id); return; }
+    if (act === 'preview')   { previewPost(id); return; }
+    if (act === 'duplicate') { duplicatePost(id); return; }
+    // Unarchive returns the post to draft; it never goes straight back live.
+    changeStatus(id, act === 'unarchive' ? 'save_draft' : act);
   });
+
+  // Clicking a header sorts by it; clicking it again flips the direction.
+  document.getElementById('list-body').addEventListener('click', function (e) {
+    var th = e.target.closest('th[data-sort]');
+    if (!th) return;
+    var key = th.dataset.sort;
+    if (state.sort === key) {
+      state.dir = (state.dir || defaultDir(key)) === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sort = key; state.dir = '';
+    }
+    var sel = document.getElementById('sort');
+    sel.value = Array.prototype.some.call(sel.options, function (o) { return o.value === key; }) ? key : '';
+    load();
+  });
+
+  /* Duplicate makes a new draft ("Copy of …", slug "-copy") and opens it. */
+  async function duplicatePost(id) {
+    var r = rowById(id);
+    var res = await AdminAuth.apiRaw('/api/admin/posts/' + id + '/duplicate', { method: 'POST' });
+    if (!res.ok || !res.body || !res.body.post) {
+      showMsg((res.body && res.body.error) || 'Could not duplicate that blog.');
+      return;
+    }
+    showMsg('Duplicated "' + (r ? r.title : '') + '" as a new draft.', 'info');
+    window.location.href = '/admin/blogs/' + res.body.post.id + '/edit';
+  }
 
   document.getElementById('q').addEventListener('input', function (e) {
     state.q = e.target.value.trim();
@@ -377,7 +440,7 @@
     state.category = e.target.value; load();
   });
   document.getElementById('sort').addEventListener('change', function (e) {
-    state.sort = e.target.value; load();
+    state.sort = e.target.value || 'published_at'; state.dir = ''; load();
   });
 
   // Arriving from the Categories screen ("View blogs") pre-fills the filter, so

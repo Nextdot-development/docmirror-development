@@ -76,9 +76,13 @@ function checkLiveArticles() {
   check('excerpts match', allExcerpts, firstBad);
   console.log(`    ${totalFaq} FAQ questions and ${totalRelated} related links recovered across ${files.length} articles`);
 
-  // Nothing should be reported as missing for a complete article.
+  // Nothing should be reported as missing for a complete article — except the
+  // focus keyword, which the live files do not declare and which the importer
+  // must report as blank rather than guess.
   const sample = parseMarkdownImport(fs.readFileSync(path.join(DIR, files[0]), 'utf8'), { filename: files[0] });
-  check('a complete article reports nothing left blank', sample.empty.length === 0, sample.empty.join(', '));
+  const blank = sample.empty.filter((e) => e !== 'Focus Keyword');
+  check('a complete article reports nothing left blank but the focus keyword', blank.length === 0, blank.join(', '));
+  check('no focus keyword is invented for a file that names none', sample.fields.focus_keyword === '');
   check('and reports every field as filled', sample.filled.length === 12, String(sample.filled.length));
 
   // The filename is what gives an unslugged file its URL.

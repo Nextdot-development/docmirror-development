@@ -39,9 +39,10 @@ const NEW_FILES = [
   '021_profiles_admin_role.sql',
   '022_blog_schema_toggles.sql',
   '023_blog_posts_public_view.sql',
+  '030_blog_focus_keyword_revisions.sql',
 ];
 
-const LAST_MIGRATION = 23;
+const LAST_MIGRATION = 30;
 
 const NEW_TABLES = ['blog_categories', 'blog_posts', 'blog_media'];
 
@@ -353,7 +354,8 @@ function checkSchemaInvariants(files) {
   const schemaChanging = ['017_blog_categories.sql', '018_blog_posts.sql',
                           '019_blog_media.sql', '021_profiles_admin_role.sql',
                           '022_blog_schema_toggles.sql',
-                          '023_blog_posts_public_view.sql'];
+                          '023_blog_posts_public_view.sql',
+                          '030_blog_focus_keyword_revisions.sql'];
   for (const f of schemaChanging) {
     check(`${f} reloads the PostgREST schema cache`, /NOTIFY\s+pgrst/i.test(files[f]));
   }
@@ -374,6 +376,26 @@ function checkSchemaInvariants(files) {
     /status\s*=\s*'published'[\s\S]*?published_at\s*<=\s*NOW\(\)/i.test(toggles));
 }
 
+// ── 030: focus keyword + revision history ─────────────────────────────────
+
+function checkRevisions(files) {
+  group('030. Focus keyword and revision history');
+  const sql = stripComments(files['030_blog_focus_keyword_revisions.sql']);
+  check('focus_keyword is added additively and nullable (never defaulted to a guess)',
+    /ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+focus_keyword\s+TEXT\s*;/i.test(sql));
+  check('version defaults to 1',
+    /ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+version\s+INTEGER\s+NOT\s+NULL\s+DEFAULT\s+1/i.test(sql));
+  check('blog_revisions cascades with its post',
+    /post_id\s+UUID\s+NOT\s+NULL\s+REFERENCES\s+blog_posts\(id\)\s+ON\s+DELETE\s+CASCADE/i.test(sql));
+  check('blog_revisions has RLS enabled', /ALTER\s+TABLE\s+blog_revisions\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY/i.test(sql));
+  check('blog_revisions is revoked from anon/authenticated',
+    /REVOKE\s+ALL\s+ON\s+TABLE\s+blog_revisions\s+FROM\s+anon,\s*authenticated/i.test(sql));
+  check('the public view keeps the read-time rule',
+    /status\s+IN\s*\(\s*'published',\s*'scheduled'\s*\)[\s\S]*?published_at\s*<=\s*NOW\(\)/i.test(sql));
+  check('the public view stays private',
+    /REVOKE\s+ALL\s+ON\s+TABLE\s+blog_posts_public\s+FROM\s+anon,\s*authenticated/i.test(sql));
+}
+
 // ── main ───────────────────────────────────────────────────────────────────
 
 console.log('\nPhase 2 migration safety check — static validation (nothing executed)');
@@ -392,6 +414,7 @@ checkStructure(files);
 checkSecurity(files);
 checkRoleGuard(files);
 checkSchemaInvariants(files);
+checkRevisions(files);
 
 console.log(`\n${'─'.repeat(72)}`);
 if (failures.length) {

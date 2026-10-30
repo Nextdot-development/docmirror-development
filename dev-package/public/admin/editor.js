@@ -44,7 +44,12 @@
     slugLocked: false,
     slugTouched: false,
     slugOk: true,
+    // Every other page's SEO title / description, for the score's "unique" rules.
+    corpus: { titles: [], descriptions: [] },
+    autosaving: false,
   };
+
+  var AUTOSAVE_MS = 30000;
 
   // The starting skeleton for a new article: enough shape that a non-technical
   // author is never staring at an empty box, but every block is deletable and
@@ -389,6 +394,7 @@
 
   function markDirty() {
     state.dirty = true;
+    state.editSeq = (state.editSeq || 0) + 1;
     var d = $('save-state');
     if (d) d.innerHTML = '<span class="adm-dirty show">Unsaved changes</span>';
     renderChecklist();
@@ -438,6 +444,163 @@
       return '<span class="adm-pill">' + esc(t) + '</span>';
     }).join('');
     return tags;
+  }
+
+  /* ── SEO score ───────────────────────────────────────────────────────────
+     The rules live in lib/seo/seo-score.js, loaded here as /admin/seo-score.js —
+     the same file the server scores Suggest options with, so the number under
+     the field and the server's judgement cannot disagree. */
+
+  function seoCtx() {
+    return {
+      focusKeyword: $('f-keyword').value.trim(),
+      title: $('f-title').value.trim(),
+      h1: $('f-title').value.trim(),
+      excerpt: $('f-excerpt').value.trim(),
+      otherTitles: state.corpus.titles,
+      otherDescriptions: state.corpus.descriptions,
+    };
+  }
+
+  function scoreBox(boxId, field, result) {
+    var box = $(boxId);
+    var value = field === 'title' ? $('f-seotitle').value.trim() : $('f-metadesc').value.trim();
+    if (!value) {
+      box.innerHTML = '<span class="adm-seo-empty">Write one to see its SEO score.</span>' +
+        ' <button type="button" class="adm-x" data-suggest="' + field + '">Suggest</button>';
+      return;
+    }
+    var range = result.range[0] + '–' + result.range[1];
+    var lenOk = result.length >= result.range[0] && result.length <= result.range[1];
+    var failing = result.rules.filter(function (r) { return !r.passed && !r.skipped; }).length;
+
+    box.innerHTML =
+      '<span class="adm-seo-badge is-' + result.band.key + '">' + result.score + '</span>' +
+      '<span class="adm-seo-band is-' + result.band.key + '">' + esc(result.band.label) + '</span>' +
+      '<span class="adm-seo-len' + (lenOk ? '' : ' is-off') + '">' + result.length + ' chars · ideal ' + range + '</span>' +
+      (failing ? '<span class="adm-seo-len">' + failing + ' rule' + (failing === 1 ? '' : 's') + ' failing</span>' : '') +
+      (result.score < 80
+        ? ' <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" data-suggest="' + field + '">Suggest</button>'
+        : ' <button type="button" class="adm-x" data-suggest="' + field + '">Details</button>') +
+      (result.keywordMissing ? '<div class="adm-hint">Add a focus keyword to score keyword rules.</div>' : '');
+  }
+
+  function renderSeoScores() {
+    if (!window.SeoScore) return;
+    var ctx = seoCtx();
+    scoreBox('seo-title-score', 'title', SeoScore.scoreTitle($('f-seotitle').value, ctx));
+    scoreBox('meta-desc-score', 'description', SeoScore.scoreDescription($('f-metadesc').value, ctx));
+    $('keyword-hint').textContent = ctx.focusKeyword
+      ? ''
+      : 'Not set. The SEO score skips its keyword rules until you add one — it is never guessed.';
+  }
+
+  async function loadCorpus() {
+    try {
+      var q = '/api/admin/seo/corpus?exclude=' + encodeURIComponent(state.id || '') +
+              '&slug=' + encodeURIComponent($('f-slug').value.trim());
+      var r = await AdminAuth.api(q);
+      state.corpus = { titles: r.titles || [], descriptions: r.descriptions || [] };
+    } catch (_) { /* uniqueness is scored against nothing — never blocks editing */ }
+    renderSeoScores();
+  }
+
+  function ruleList(rules) {
+    return rules.map(function (r) {
+      return '<span class="adm-seo-rule ' + (r.passed ? 'is-pass' : 'is-fail') + '">' +
+        (r.passed ? '✓ ' : '✗ ') + esc(r.label) + '</span>';
+    }).join('');
+  }
+
+  async function openSuggest(field) {
+    var isTitle = field === 'title';
+    $('suggest-title').textContent = isTitle ? 'Improve the SEO title' : 'Improve the meta description';
+    var body = $('suggest-body');
+    body.innerHTML = '<p class="adm-hint">Checking the rules and building options…</p>';
+    $('suggest-modal').classList.add('show');
+
+    var value = isTitle ? $('f-seotitle').value.trim() : $('f-metadesc').value.trim();
+    var r;
+    try {
+      r = await AdminAuth.api('/api/admin/seo/suggest', {
+        method: 'POST',
+        body: JSON.stringify({
+          field: field, id: state.id || '', slug: $('f-slug').value.trim(),
+          title: $('f-title').value.trim(), excerpt: $('f-excerpt').value.trim(),
+          focus_keyword: $('f-keyword').value.trim(), value: value,
+        }),
+      });
+    } catch (e) {
+      body.innerHTML = '<div class="adm-msg show adm-msg--error">' + esc(e.message) + '</div>';
+      return;
+    }
+
+    var cur = r.current;
+    var failing = cur.rules.filter(function (x) { return !x.passed; });
+    var html = '<div class="adm-seo-cur">Current score: <span class="adm-seo-badge is-' + cur.band.key + '">' +
+      cur.score + '</span> <span class="adm-seo-band is-' + cur.band.key + '">' + esc(cur.band.label) + '</span></div>';
+
+    if (failing.length) {
+      html += '<h4 class="adm-seo-h">What is wrong, and why</h4><ol class="adm-seo-problems">' +
+        failing.map(function (x) {
+          return '<li><strong>' + esc(x.problem) + '</strong>' +
+            '<div class="adm-seo-why"><em>' + esc(x.label) + (x.skipped ? '' : ' (' + x.points + '/' + x.max + ' pts)') +
+            '</em> — ' + esc(x.why) + '</div></li>';
+        }).join('') + '</ol>';
+    } else {
+      html += '<p class="adm-hint">Every rule passes.</p>';
+    }
+
+    html += '<h4 class="adm-seo-h">Fix options <small>' +
+      (r.ai_used ? 'AI wording, each re-checked against every rule' : 'built from your title, excerpt and focus keyword') +
+      '</small></h4>';
+    if (!r.options.length) {
+      html += '<p class="adm-hint">No option passed every rule. ' +
+        (r.keyword_missing ? 'Add a focus keyword and an excerpt, then try again.' : 'Add or lengthen the excerpt, then try again.') + '</p>';
+    } else {
+      html += r.options.map(function (o, i) {
+        return '<div class="adm-seo-opt">' +
+          '<div class="adm-seo-opt-text">' + esc(o.text) + '</div>' +
+          '<div class="adm-seo-opt-meta">' + o.length + ' chars · score ' + o.score + '</div>' +
+          '<div class="adm-seo-rules">' + ruleList(o.rules) + '</div>' +
+          '<button type="button" class="adm-btn adm-btn--sm" data-apply="' + i + '">Use this</button>' +
+          '</div>';
+      }).join('');
+    }
+    body.innerHTML = html;
+
+    body.querySelectorAll('[data-apply]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var o = r.options[+b.dataset.apply];
+        if (isTitle) { $('f-seotitle').value = o.text; counter('f-seotitle', 'seo-title-count', 60); }
+        else { $('f-metadesc').value = o.text; counter('f-metadesc', 'meta-desc-count', 160); }
+        $('suggest-modal').classList.remove('show');
+        renderSeoScores();
+        markDirty();
+      });
+    });
+  }
+
+  /* ── duplicate title warning ─────────────────────────────────────────── */
+
+  var titleTimer = null;
+  function checkTitleDuplicate() {
+    clearTimeout(titleTimer);
+    var title = $('f-title').value.trim();
+    var box = $('title-dup');
+    if (!title) { box.hidden = true; return; }
+    titleTimer = setTimeout(async function () {
+      try {
+        var r = await AdminAuth.api('/api/admin/posts/title-check?title=' + encodeURIComponent(title) +
+          (state.id ? '&id=' + encodeURIComponent(state.id) : ''));
+        if (!r.duplicate) { box.hidden = true; return; }
+        box.hidden = false;
+        box.innerHTML = '⚠ Another article already uses this title: ' + r.matches.map(function (m) {
+          return '<strong>' + esc(m.title) + '</strong> (/resources/' + esc(m.slug) +
+            (m.status ? ', ' + esc(m.status) : '') + ')';
+        }).join('; ') + '. Two pages with one headline compete in search.';
+      } catch (_) { box.hidden = true; }
+    }, 400);
   }
 
   /* ── slug availability ───────────────────────────────────────────────── */
@@ -670,6 +833,42 @@
       : '<span id="img-drop-label">Click to upload, or drag an image here</span>';
   }
 
+  /**
+   * An image pasted or dropped straight into the article: uploaded to the media
+   * library like any other, then inserted where the caret is. Reports progress
+   * under the editor rather than through flash(), which would scroll the page
+   * away from where the author is writing.
+   */
+  async function uploadIntoContent(file) {
+    var note = $('ed-stats');
+    var limits = (state.options && state.options.upload) || {};
+    if (limits.allowedMime && limits.allowedMime.indexOf(file.type) === -1) {
+      note.textContent = 'That file type is not supported. Use PNG, JPG, WebP or GIF.'; return;
+    }
+    if (limits.maxBytes && file.size > limits.maxBytes) {
+      note.textContent = 'That image is ' + (file.size / 1048576).toFixed(1) + ' MB. The limit is 5 MB.'; return;
+    }
+    rememberSelection();
+    note.textContent = 'Uploading ' + (file.name || 'pasted image') + '…';
+    try {
+      var name = file.name || ('pasted-' + Date.now() + '.' + (file.type.split('/')[1] || 'png'));
+      var r = await AdminAuth.apiRaw(
+        '/api/admin/media/upload?filename=' + encodeURIComponent(name),
+        { method: 'POST', headers: { 'Content-Type': file.type }, body: await file.arrayBuffer() }
+      );
+      if (!r.ok) throw new Error((r.body && r.body.error) || 'Upload failed');
+      mediaTarget = 'content';
+      pickImage(r.body.media.public_url, r.body.media.alt_text);
+      note.textContent = r.body.warning || 'Image inserted. Add ALT text by editing it in the media library if needed.';
+    } catch (e) {
+      note.textContent = 'Image upload failed: ' + e.message;
+    }
+  }
+
+  function imageFiles(list) {
+    return Array.prototype.filter.call(list || [], function (f) { return /^image\//.test(f.type); });
+  }
+
   async function uploadFile(file) {
     if (!file) return;
     var limits = (state.options && state.options.upload) || {};
@@ -729,6 +928,7 @@
       image_alt: $('f-alt').value.trim(),
       seo_title: $('f-seotitle').value.trim(),
       meta_description: $('f-metadesc').value.trim(),
+      focus_keyword: $('f-keyword').value.trim(),
       read_time_minutes: parseInt($('f-readtime').value, 10) || null,
       faq: faq,
       related_slugs: state.related.map(function (r) { return r.slug; }),
@@ -745,15 +945,44 @@
     var el = $('f-status');
     el.className = 'adm-chip adm-chip--' + status;
     el.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    // An archived post offers the way back instead of a second Archive.
+    $('btn-archive').textContent = status === 'archived' ? 'Unarchive' : 'Archive';
+    renderAutosaveNote();
+  }
+
+  /* ── autosave ────────────────────────────────────────────────────────────
+     Every 30s, drafts only. A published or scheduled post is never autosaved:
+     that would push half-typed edits onto a live page (or unpublish it by
+     saving it as a draft). The server refuses it too. */
+
+  function canAutosave() {
+    return state.status === 'draft' && $('f-title').value.trim() !== '' && state.slugOk !== false;
+  }
+
+  function renderAutosaveNote() {
+    var el = $('autosave-note');
+    if (!el) return;
+    el.textContent = state.status === 'draft'
+      ? 'Autosaves every 30 seconds.'
+      : 'Autosave is off for ' + state.status + ' posts — your changes apply when you click a button below.';
+  }
+
+  async function autosave() {
+    if (!state.dirty || state.saving || !canAutosave()) return;
+    // A modal open means the author is mid-task (import, suggest, history).
+    if (document.querySelector('.adm-modal.show')) return;
+    await save('autosave');
   }
 
   async function save(action) {
     if (state.saving) return;
-    clearFlash();
+    var silent = action === 'autosave';
+    if (!silent) clearFlash();
 
     if (action === 'archive' && !window.confirm('Archive this blog? It will be removed from the public site.')) return;
 
     state.saving = true;
+    var seqAtStart = state.editSeq || 0;
     ['btn-draft', 'btn-schedule', 'btn-archive', 'btn-publish'].forEach(function (b) { $(b).disabled = true; });
     $('save-state').textContent = 'Saving…';
 
@@ -763,24 +992,40 @@
         ? await AdminAuth.apiRaw('/api/admin/posts/' + state.id, { method: 'PATCH', body: JSON.stringify(payload) })
         : await AdminAuth.apiRaw('/api/admin/posts', { method: 'POST', body: JSON.stringify(payload) });
 
+      if (silent && r.status === 409 && r.body && r.body.autosave_skipped) {
+        $('save-state').innerHTML = '<span class="adm-dirty show">Unsaved changes</span>';
+        return;
+      }
       if (!r.ok) throw new Error((r.body && r.body.error) || 'Could not save.');
 
       var post = r.body.post;
+      var wasNew = !state.id;
       if (!state.id) {
         state.id = post.id;
         history.replaceState({}, '', '/admin/blogs/' + post.id + '/edit');
       }
+      var prevStatus = state.status;
       setStatusChip(post.status);
       applySlugLock(post);
       syncDeleteButton();
-      markClean('Saved · ' + new Date().toLocaleTimeString());
+      // Typing that happened while the request was in flight is still unsaved.
+      if ((state.editSeq || 0) === seqAtStart) markClean((silent ? 'Autosaved · ' : 'Saved · ') + new Date().toLocaleTimeString());
+      if (wasNew) loadCorpus();          // the corpus must now exclude this post
 
-      var word = action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled'
-               : action === 'archive' ? 'archived' : 'saved as draft';
-      flash('Blog ' + word + '.', 'info');
+      if (!silent) {
+        var word = action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled'
+                 : action === 'archive' ? 'archived'
+                 : prevStatus === 'archived' ? 'unarchived and moved back to draft' : 'saved as draft';
+        flash('Blog ' + word + '.', 'info');
+      }
     } catch (e) {
-      flash(e.message, 'error');
-      $('save-state').textContent = '';
+      if (silent) {
+        // A failed autosave must not interrupt typing; the next tick retries.
+        $('save-state').innerHTML = '<span class="adm-dirty show">Autosave failed — unsaved changes</span>';
+      } else {
+        flash(e.message, 'error');
+        $('save-state').textContent = '';
+      }
     } finally {
       state.saving = false;
       ['btn-draft', 'btn-archive'].forEach(function (b) { $(b).disabled = false; });
@@ -867,6 +1112,7 @@
     setIf('f-alt', f.image_alt);
     setIf('f-seotitle', f.seo_title);
     setIf('f-metadesc', f.meta_description);
+    setIf('f-keyword', f.focus_keyword);
     setIf('f-date', f.publish_date);
     setIf('f-time', f.publish_time);
 
@@ -899,6 +1145,10 @@
     updateReadTime();
     updateSchemaHint();
     checkSlug();
+    checkTitleDuplicate();
+    counter('f-seotitle', 'seo-title-count', 60);
+    counter('f-metadesc', 'meta-desc-count', 160);
+    renderSeoScores();
     markDirty();
 
     var lines = [];
@@ -959,6 +1209,104 @@
     } catch (e) { win.close(); flash('Preview failed: ' + e.message, 'error'); }
   }
 
+  /* ── version history ─────────────────────────────────────────────────────
+     Restoring loads an old version into the form, unsaved. The current status,
+     publish date and (if locked) slug are kept — restoring content must never
+     republish, unpublish or move a live URL. */
+
+  var REASON_LABEL = {
+    save_draft: 'Saved as draft', publish: 'Published', schedule: 'Scheduled', archive: 'Archived',
+  };
+
+  async function openHistory() {
+    var box = $('history-list');
+    $('history-modal').classList.add('show');
+    if (!state.id) { box.innerHTML = '<p class="adm-hint">Save this blog once to start its history.</p>'; return; }
+    box.innerHTML = '<p class="adm-hint">Loading…</p>';
+    try {
+      var r = await AdminAuth.api('/api/admin/posts/' + state.id + '/revisions');
+      if (!r.supported) {
+        box.innerHTML = '<p class="adm-hint">Version history is not enabled yet — run migration 030 in Supabase.</p>';
+        return;
+      }
+      if (!r.revisions.length) {
+        box.innerHTML = '<p class="adm-hint">No earlier versions yet. Each Save Draft, Publish, Schedule or Archive keeps the version it replaces.</p>';
+        return;
+      }
+      box.innerHTML = '<table class="adm-table" style="min-width:0"><thead><tr><th>Version</th><th>Saved</th><th>By</th><th></th></tr></thead><tbody>' +
+        r.revisions.map(function (v) {
+          var when = new Date(v.created_at);
+          return '<tr><td><strong>v' + esc(String(v.version)) + '</strong><div class="adm-table-sub">' +
+            esc(v.title || '') + ' · ' + esc(v.status || '') + '</div></td>' +
+            '<td><span class="adm-table-date">' + esc(when.toLocaleDateString()) + '</span>' +
+            '<div class="adm-table-sub">' + esc(when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) +
+            ' · before ' + esc((REASON_LABEL[v.reason] || v.reason || 'save').toLowerCase()) + '</div></td>' +
+            '<td class="adm-table-sub">' + esc(v.created_by_email || '—') + '</td>' +
+            '<td class="is-tight"><button type="button" class="adm-x" data-restore="' + esc(v.id) + '">Restore</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    } catch (e) {
+      box.innerHTML = '<div class="adm-msg show adm-msg--error">' + esc(e.message) + '</div>';
+    }
+  }
+
+  async function restoreRevision(revId) {
+    if (state.dirty && !window.confirm('Restoring replaces what is in the editor, including unsaved changes. Continue?')) return;
+    try {
+      var r = await AdminAuth.api('/api/admin/posts/' + state.id + '/revisions/' + encodeURIComponent(revId));
+      var keep = {
+        status: state.status, date: $('f-date').value, time: $('f-time').value,
+        slug: $('f-slug').value, locked: state.slugLocked,
+      };
+      var snap = Object.assign({}, r.revision.snapshot, { status: keep.status, published_at: null });
+      fillPost(snap, r.content_html);
+
+      $('f-date').value = keep.date;
+      $('f-time').value = keep.time;
+      if (keep.locked) { $('f-slug').value = keep.slug; }
+      state.slugLocked = keep.locked;
+      $('f-slug').readOnly = keep.locked;
+
+      renderFaq(); renderRelated(); renderTags(); renderFeaturedPreview();
+      updateCanonical(); updateReadTime(); updateSchemaHint(); renderSeoScores();
+      counter('f-seotitle', 'seo-title-count', 60);
+      counter('f-metadesc', 'meta-desc-count', 160);
+      $('history-modal').classList.remove('show');
+      markDirty();
+      flash('Version ' + r.revision.version + ' loaded into the editor. Nothing is saved yet — review it, then ' +
+        'choose Save Draft or Publish.', 'info');
+    } catch (e) {
+      flash('Could not restore that version: ' + e.message, 'error');
+    }
+  }
+
+  /* ── related: auto-add latest ───────────────────────────────────────── */
+
+  async function autoAddLatest(silentIfNone) {
+    var cat = $('f-category').value;
+    var hint = $('rel-auto-hint');
+    if (!cat) { hint.textContent = 'Choose a category first.'; return; }
+    try {
+      var r = await AdminAuth.api('/api/admin/posts/related-search?limit=20&category=' + encodeURIComponent(cat) +
+        '&exclude=' + encodeURIComponent($('f-slug').value.trim()));
+      var picked = state.related.map(function (x) { return x.slug; });
+      var fresh = (r.results || []).filter(function (x) { return picked.indexOf(x.slug) === -1; }).slice(0, 4);
+      var added = 0;
+      fresh.forEach(function (x) {
+        if (state.related.length >= 6) return;
+        state.related.push({ slug: x.slug, title: x.title, source: x.source, url: x.url, status: x.status });
+        added++;
+      });
+      if (added) { renderRelated(); markDirty(); }
+      if (added || !silentIfNone) {
+        hint.textContent = added
+          ? 'Added ' + added + ' latest from “' + cat + '”.'
+          : 'Nothing new to add from “' + cat + '”.';
+      }
+    } catch (e) {
+      hint.textContent = 'Could not load the latest blogs: ' + e.message;
+    }
+  }
+
   /* ── load ────────────────────────────────────────────────────────────── */
 
   function fillOptions(o) {
@@ -989,6 +1337,7 @@
     $('f-alt').value = p.image_alt || '';
     $('f-seotitle').value = p.seo_title || '';
     $('f-metadesc').value = p.meta_description || '';
+    $('f-keyword').value = p.focus_keyword || '';
     if (p.read_time_minutes) { $('f-readtime').value = p.read_time_minutes; $('f-readtime').dataset.touched = '1'; }
 
     $('f-schema-article').checked = p.enable_article_schema !== false;
@@ -1024,6 +1373,7 @@
         '<span class="adm-dirty" id="top-dirty">Unsaved changes</span>' +
         '<button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" id="btn-import">Import .md</button>' +
         '<button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" id="btn-preview">Preview</button>' +
+        '<button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" id="btn-history">History</button>' +
         '<a class="adm-btn adm-btn--ghost adm-btn--sm" href="/admin/blogs" style="text-decoration:none">Back</a>',
     });
     AdminShell.setEmail(admin.email);
@@ -1065,8 +1415,13 @@
     counter('f-seotitle', 'seo-title-count', 60);
     counter('f-metadesc', 'meta-desc-count', 160);
     renderChecklist();
+    renderSeoScores();
+    renderAutosaveNote();
+    loadCorpus();
+    if (state.id) checkTitleDuplicate();
     markClean(state.id ? 'Loaded' : '');
     wire();
+    setInterval(autosave, AUTOSAVE_MS);
   }
 
   /* ── wiring ──────────────────────────────────────────────────────────── */
@@ -1107,20 +1462,70 @@
     // junk into content_md, and the toolbar can re-apply real formatting.
     ed.addEventListener('paste', function (e) {
       e.preventDefault();
-      var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      var cd = e.clipboardData || window.clipboardData;
+      // A pasted screenshot or copied image is uploaded, not dropped on the floor.
+      var images = imageFiles(cd.files);
+      if (images.length) { images.forEach(uploadIntoContent); return; }
+      var text = cd.getData('text/plain');
       document.execCommand('insertText', false, text);
     });
 
+    // Images dragged onto the article land where they are dropped.
+    ed.addEventListener('dragover', function (e) {
+      if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') !== -1) e.preventDefault();
+    });
+    ed.addEventListener('drop', function (e) {
+      var images = imageFiles(e.dataTransfer && e.dataTransfer.files);
+      if (!images.length) return;
+      e.preventDefault();
+      var range = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+      if (range && inEditor(range.startContainer)) {
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(range);
+        savedRange = range.cloneRange();
+      }
+      images.forEach(uploadIntoContent);
+    });
+
+    // The SEO title is deliberately NOT filled from the blog title: the H1 is
+    // written for the reader on the page, the SEO title for the results page,
+    // and a verbatim copy fails the score's uniqueness rule.
     $('f-title').addEventListener('input', function () {
       if (!state.slugTouched && !state.slugLocked) {
         $('f-slug').value = slugify($('f-title').value);
         updateCanonical(); checkSlug();
       }
-      if (!$('f-seotitle').value.trim()) {
-        $('f-seotitle').value = $('f-title').value.slice(0, 60);
-        counter('f-seotitle', 'seo-title-count', 60);
-      }
+      checkTitleDuplicate();
+      renderSeoScores();
       markDirty();
+    });
+
+    ['f-keyword', 'f-excerpt'].forEach(function (id) {
+      $(id).addEventListener('input', function () { renderSeoScores(); markDirty(); });
+    });
+    ['seo-title-score', 'meta-desc-score'].forEach(function (id) {
+      $(id).addEventListener('click', function (e) {
+        var b = e.target.closest('[data-suggest]');
+        if (b) openSuggest(b.dataset.suggest);
+      });
+    });
+    $('suggest-close').addEventListener('click', function () { $('suggest-modal').classList.remove('show'); });
+    $('suggest-modal').addEventListener('click', function (e) {
+      if (e.target === $('suggest-modal')) $('suggest-modal').classList.remove('show');
+    });
+
+    $('btn-history').addEventListener('click', openHistory);
+    $('history-close').addEventListener('click', function () { $('history-modal').classList.remove('show'); });
+    $('history-modal').addEventListener('click', function (e) {
+      if (e.target === $('history-modal')) { $('history-modal').classList.remove('show'); return; }
+      var b = e.target.closest('[data-restore]');
+      if (b) restoreRevision(b.dataset.restore);
+    });
+
+    $('rel-auto').addEventListener('click', function () { autoAddLatest(false); });
+    // Picking a category on a post with no related list fills it straight away.
+    $('f-category').addEventListener('change', function () {
+      if (!state.related.length) autoAddLatest(true);
     });
 
     $('f-slug').addEventListener('input', function () {
@@ -1139,8 +1544,8 @@
     $('f-image').addEventListener('input', renderFeaturedPreview);
     $('f-readtime').addEventListener('input', function () { this.dataset.touched = '1'; markDirty(); });
 
-    $('f-seotitle').addEventListener('input', function () { counter('f-seotitle', 'seo-title-count', 60); markDirty(); });
-    $('f-metadesc').addEventListener('input', function () { counter('f-metadesc', 'meta-desc-count', 160); markDirty(); });
+    $('f-seotitle').addEventListener('input', function () { counter('f-seotitle', 'seo-title-count', 60); renderSeoScores(); markDirty(); });
+    $('f-metadesc').addEventListener('input', function () { counter('f-metadesc', 'meta-desc-count', 160); renderSeoScores(); markDirty(); });
 
     ['f-schema-article', 'f-schema-faq'].forEach(function (id) {
       $(id).addEventListener('change', function () { updateSchemaHint(); markDirty(); });
@@ -1251,7 +1656,10 @@
       if (!$('f-date').value) { flash('Pick a publish date and time to schedule.', 'error'); return; }
       save('schedule');
     });
-    $('btn-archive').addEventListener('click', function () { save('archive'); });
+    // Unarchive returns the post to draft — it never goes straight back live.
+    $('btn-archive').addEventListener('click', function () {
+      save(state.status === 'archived' ? 'save_draft' : 'archive');
+    });
     $('btn-delete').addEventListener('click', deleteBlog);
 
     window.addEventListener('beforeunload', function (e) {

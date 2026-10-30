@@ -20,7 +20,7 @@
 require('../../lib/env');
 const { getSupabaseClient, withSupabaseRetry, formatFetchError } = require('../../lib/supabase-client');
 const { slugify, getAllResources, getResourceBySlug } = require('../../lib/resources');
-const { readingTimeMinutes, autoExcerpt, BASE_PATH } = require('../../lib/blog-post-mapper');
+const { readingTimeMinutes, autoExcerpt, renderMarkdown, BASE_PATH } = require('../../lib/blog-post-mapper');
 const { stripInternalLinks } = require('../../lib/strip-internal-links');
 // Reused rather than re-derived: the list, the dashboard counts and the public
 // read must agree on what "published right now" means, down to the edge case of
@@ -68,10 +68,69 @@ async function togglesSupported(supabase) {
   return _togglesSupported;
 }
 
+// Added by migration 030, probed the same way: focus_keyword + version on
+// blog_posts, and the blog_revisions table. Without them the editor simply has
+// no keyword to persist and no history panel.
+const V2_COLUMNS = ['focus_keyword', 'version'];
+let _v2Supported = null;
+let _revisionsSupported = null;
+
+async function v2Supported(supabase) {
+  if (_v2Supported !== null) return _v2Supported;
+  const { error } = await supabase.from('blog_posts').select(V2_COLUMNS.join(', ')).limit(0);
+  _v2Supported = !error;
+  if (!_v2Supported) console.warn('[admin/posts] migration 030 not applied — focus keyword and version disabled');
+  return _v2Supported;
+}
+
+async function revisionsSupported(supabase) {
+  if (_revisionsSupported !== null) return _revisionsSupported;
+  const { error } = await supabase.from('blog_revisions').select('id').limit(0);
+  _revisionsSupported = !error;
+  if (!_revisionsSupported) console.warn('[admin/posts] migration 030 not applied — revision history disabled');
+  return _revisionsSupported;
+}
+
 async function selectColumns(supabase) {
-  return (await togglesSupported(supabase))
-    ? BASE_COLUMNS + ', ' + SCHEMA_TOGGLE_COLUMNS.join(', ')
-    : BASE_COLUMNS;
+  let cols = BASE_COLUMNS;
+  if (await togglesSupported(supabase)) cols += ', ' + SCHEMA_TOGGLE_COLUMNS.join(', ');
+  if (await v2Supported(supabase)) cols += ', ' + V2_COLUMNS.join(', ');
+  return cols;
+}
+
+/** Drops columns the database has not been migrated to hold yet. */
+async function stripUnsupported(supabase, row) {
+  if (!await togglesSupported(supabase)) SCHEMA_TOGGLE_COLUMNS.forEach((c) => { delete row[c]; });
+  if (!await v2Supported(supabase)) V2_COLUMNS.forEach((c) => { delete row[c]; });
+  return row;
+}
+
+// ── revisions ───────────────────────────────────────────────────────────────
+
+// What a revision keeps: everything the editor can change. Status and publish
+// time are stored for context only — restoring never republishes anything.
+const REVISION_FIELDS = [
+  'title', 'slug', 'excerpt', 'content_md', 'author', 'category', 'tags', 'read_time_minutes',
+  'featured_image', 'image_alt', 'seo_title', 'meta_description', 'focus_keyword', 'faq',
+  'related_slugs', 'enable_article_schema', 'enable_faq_schema', 'status', 'published_at',
+];
+
+/**
+ * Stores the row as it was BEFORE this save. Best effort: a failure to write
+ * history is logged and never blocks the save itself.
+ */
+async function writeRevision(supabase, existing, adminId, reason) {
+  if (!await revisionsSupported(supabase)) return;
+  const snapshot = {};
+  for (const k of REVISION_FIELDS) if (existing[k] !== undefined) snapshot[k] = existing[k];
+  const { error } = await supabase.from('blog_revisions').insert({
+    post_id: existing.id,
+    version: existing.version || 1,
+    snapshot,
+    reason,
+    created_by: adminId,
+  });
+  if (error) console.warn(`[admin/posts] revision write failed for ${existing.id}: ${error.message}`);
 }
 
 /** Reads the toggles off a row, defaulting to on when the columns are absent. */
@@ -220,6 +279,8 @@ function buildFields(body, { existing = null } = {}) {
   f.image_alt        = String(body.image_alt || '').trim();
   f.seo_title        = String(body.seo_title || '').trim() || null;
   f.meta_description = String(body.meta_description || '').trim() || null;
+  // Never derived from anything — an empty keyword means "not set".
+  f.focus_keyword    = String(body.focus_keyword || '').trim().slice(0, 120) || null;
   f.faq              = cleanFaq(body.faq);
 
   f.related_slugs = cleanStringArray(body.related_slugs, { max: MAX_RELATED, asSlug: true })
@@ -310,6 +371,7 @@ function resolveStatus(action, body, fields, existing) {
       // status alone is what removes it from the public site.
       return { status: 'archived', published_at: prevPublishedAt, errors };
 
+    case 'autosave':          // the editor's 30s timer — drafts only, see update()
     case 'save_draft':
     default: {
       // A draft may carry an intended date without being scheduled yet, so the
@@ -373,7 +435,18 @@ async function slugConflict(supabase, slug, ignoreId) {
  */
 const LIST_COLUMNS =
   'id, title, slug, excerpt, author, category, tags, read_time_minutes, featured_image, ' +
-  'status, published_at, created_at, updated_at';
+  'status, published_at, created_at, updated_at, created_by';
+
+/** created_by holds a profile id; the list shows who that was. */
+async function creatorEmails(supabase, rows) {
+  const ids = [...new Set(rows.map((r) => r.created_by).filter(Boolean))];
+  if (!ids.length) return {};
+  const { data, error } = await supabase.from('profiles').select('id, email').in('id', ids);
+  if (error) { console.warn('[admin/posts] creator lookup failed:', error.message); return {}; }
+  const out = {};
+  for (const p of data || []) out[p.id] = p.email;
+  return out;
+}
 
 function applyStatusFilter(query, status, nowIso) {
   switch (status) {
@@ -400,12 +473,18 @@ async function list(req, res) {
   const nowIso = now.toISOString();
   const nowMs  = now.getTime();
 
-  const sort = ['updated_at', 'published_at', 'created_at', 'title'].includes(String(req.query.sort || ''))
-    ? String(req.query.sort) : 'updated_at';
+  // Default is publish date, newest first — never updated_at, or a post that was
+  // just re-published (keeping its original date) would jump to the top.
+  const sort = ['updated_at', 'published_at', 'created_at', 'title', 'read_time_minutes', 'category', 'status']
+    .includes(String(req.query.sort || '')) ? String(req.query.sort) : 'published_at';
+  const dir = String(req.query.dir || '');
+  const ascending = dir === 'asc' ? true : dir === 'desc' ? false : (sort === 'title' || sort === 'category');
 
   let query = supabase.from('blog_posts').select(LIST_COLUMNS, { count: 'exact' })
-    .order(sort, { ascending: sort === 'title', nullsFirst: false })
-    .limit(limit);
+    .order(sort, { ascending, nullsFirst: false });
+  // A stable tiebreak, so drafts with no publish date keep a predictable order.
+  if (sort !== 'updated_at') query = query.order('updated_at', { ascending: false });
+  query = query.limit(limit);
 
   query = applyStatusFilter(query, status, nowIso);
   if (cat) query = query.eq('category', cat);
@@ -419,12 +498,14 @@ async function list(req, res) {
   );
   if (error) return fail(res, 'list', error);
 
+  const emails = await creatorEmails(supabase, data || []);
   const posts = (data || []).map((row) => {
     const eff = effectiveStatus(row, nowMs);
     return Object.assign({}, row, {
       effective_status: eff,
       is_public:        eff === 'published',
       url:              `${BASE_PATH}/${row.slug}`,
+      created_by_email: row.created_by ? (emails[row.created_by] || null) : null,
     });
   });
 
@@ -453,6 +534,8 @@ async function get(req, res) {
   return res.json({
     post: Object.assign({}, data, readToggles(data)),
     schema_toggles_supported: await togglesSupported(supabase),
+    focus_keyword_supported: await v2Supported(supabase),
+    revisions_supported: await revisionsSupported(supabase),
     // Rendered here so the editor can load an existing body into the visual
     // editor without needing a Markdown parser in the browser.
     content_html: require('../../lib/blog-post-mapper').renderMarkdown(data.content_md || ''),
@@ -514,16 +597,19 @@ async function relatedSearch(req, res) {
   const q = String(req.query.q || '').trim().toLowerCase();
   const exclude = String(req.query.exclude || '').trim();
   const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 300);
+  // "Auto-add latest" asks for one category's newest published/scheduled posts.
+  const category = String(req.query.category || '').trim().toLowerCase();
 
-  const matches = (title, slug) =>
-    !q || String(title || '').toLowerCase().includes(q) || String(slug || '').includes(q);
+  const matches = (title, slug, cat) =>
+    (!category || String(cat || '').trim().toLowerCase() === category) &&
+    (!q || String(title || '').toLowerCase().includes(q) || String(slug || '').includes(q));
 
   const results = [];
 
   try {
     for (const p of getAllResources()) {
       if (p.slug === exclude) continue;
-      if (!matches(p.title, p.slug)) continue;
+      if (!matches(p.title, p.slug, p.category)) continue;
       results.push({
         slug: p.slug, title: p.title, category: p.category,
         url: p.url, source: 'article', status: 'published',
@@ -546,7 +632,7 @@ async function relatedSearch(req, res) {
     const now = Date.now();
     for (const r of (data || [])) {
       if (r.slug === exclude) continue;
-      if (!matches(r.title, r.slug)) continue;
+      if (!matches(r.title, r.slug, r.category)) continue;
       const live = r.published_at && Date.parse(r.published_at) <= now;
       results.push({
         slug: r.slug, title: r.title, category: r.category,
@@ -656,12 +742,10 @@ async function create(req, res) {
     created_by: req.admin.id,
     updated_by: req.admin.id,
   };
-  // Drop the toggle columns when migration 022 has not been applied, so a save
+  // Drop columns from migrations 022/030 that have not been applied, so a save
   // fails on nothing more than a column the database has not been told about.
   const cols = await selectColumns(supabase);
-  if (!await togglesSupported(supabase)) {
-    SCHEMA_TOGGLE_COLUMNS.forEach((c) => { delete row[c]; });
-  }
+  await stripUnsupported(supabase, row);
 
   const { data, error } = await withSupabaseRetry(
     () => supabase.from('blog_posts').insert(row).select(cols).single(),
@@ -689,6 +773,13 @@ async function update(req, res) {
 
   const existing = existingRes.data;
   const action = String((req.body && req.body.action) || 'save_draft');
+
+  // Autosave may only ever touch a draft. Anything else would push half-typed
+  // edits onto a live page, or silently unpublish it by saving it as a draft.
+  if (action === 'autosave' && existing.status !== 'draft') {
+    return res.status(409).json({ error: 'Autosave only runs on drafts.', autosave_skipped: true });
+  }
+
   const { fields, errors } = buildFields(req.body || {}, { existing });
   const st = resolveStatus(action, req.body || {}, fields, existing);
   const allErrors = errors.concat(st.errors);
@@ -710,9 +801,13 @@ async function update(req, res) {
     published_at: st.published_at,
     updated_by: req.admin.id,
   };
-  if (!await togglesSupported(supabase)) {
-    SCHEMA_TOGGLE_COLUMNS.forEach((c) => { delete row[c]; });
+  // Every deliberate save keeps the previous state; the 30s autosave does not,
+  // or the history would be a wall of near-identical snapshots.
+  if (action !== 'autosave') {
+    await writeRevision(supabase, existing, req.admin.id, action);
+    row.version = (existing.version || 1) + 1;
   }
+  await stripUnsupported(supabase, row);
 
   const { data, error } = await withSupabaseRetry(
     () => supabase.from('blog_posts').update(row).eq('id', existing.id).select(cols).single(),
@@ -760,9 +855,15 @@ async function setStatus(req, res) {
   const st = resolveStatus(action, req.body || {}, existing, existing);
   if (st.errors.length) return res.status(400).json({ error: st.errors[0], errors: st.errors });
 
+  await writeRevision(supabase, existing, req.admin.id, action);
+  const patch = await stripUnsupported(supabase, {
+    status: st.status, published_at: st.published_at, updated_by: req.admin.id,
+    version: (existing.version || 1) + 1,
+  });
+
   const { data, error } = await withSupabaseRetry(
     () => supabase.from('blog_posts')
-      .update({ status: st.status, published_at: st.published_at, updated_by: req.admin.id })
+      .update(patch)
       .eq('id', existing.id).select(cols).single(),
     { label: 'admin-posts-status', attempts: 2 }
   );
@@ -834,8 +935,157 @@ async function remove(req, res) {
   });
 }
 
+/**
+ * GET /api/admin/posts/title-check?title=&id=
+ *
+ * Is another article — CMS or Markdown — already using this exact title?
+ * A warning, not a block: two pages with one headline compete in search, but
+ * the author may be mid-rewrite.
+ */
+async function titleCheck(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
+
+  const supabase = db(res); if (!supabase) return;
+
+  const title = String(req.query.title || '').trim();
+  const id = String(req.query.id || '').trim();
+  if (!title) return res.json({ duplicate: false, matches: [] });
+
+  const key = title.toLowerCase().replace(/\s+/g, ' ');
+  const matches = [];
+
+  for (const p of getAllResources()) {
+    if (String(p.title || '').toLowerCase().replace(/\s+/g, ' ') === key) {
+      matches.push({ title: p.title, slug: p.slug, source: 'article' });
+    }
+  }
+
+  // ilike with no wildcard is a case-insensitive equality; escape the wildcard
+  // characters so a title containing them matches only itself.
+  const pattern = title.replace(/[\\%_]/g, (c) => '\\' + c);
+  let q = supabase.from('blog_posts').select('id, title, slug, status').ilike('title', pattern).limit(5);
+  if (id) q = q.neq('id', id);
+  const { data, error } = await withSupabaseRetry(() => q, { label: 'admin-posts-title-check', attempts: 2 });
+  if (error) return fail(res, 'title-check', error);
+  for (const r of data || []) matches.push({ title: r.title, slug: r.slug, source: 'cms', status: r.status });
+
+  return res.json({ duplicate: matches.length > 0, matches });
+}
+
+/**
+ * POST /api/admin/posts/:id/duplicate
+ *
+ * A new DRAFT with the same content. It gets a fresh slug ("-copy", "-copy-2"…),
+ * no publish date and no history — it is a new article, not a version.
+ */
+async function duplicate(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
+
+  const supabase = db(res); if (!supabase) return;
+
+  const cols = await selectColumns(supabase);
+  const loaded = await withSupabaseRetry(
+    () => supabase.from('blog_posts').select(cols).eq('id', req.params.id).maybeSingle(),
+    { label: 'admin-posts-dup-load', attempts: 2 }
+  );
+  if (loaded.error) return fail(res, 'duplicate/load', loaded.error);
+  if (!loaded.data) return res.status(404).json({ error: 'Blog not found' });
+
+  const src = loaded.data;
+  let slug = null;
+  try {
+    for (let n = 1; n <= 20 && !slug; n++) {
+      const candidate = `${src.slug}-copy${n === 1 ? '' : '-' + n}`;
+      if (!(await slugConflict(supabase, candidate, null)).taken) slug = candidate;
+    }
+  } catch (error) { return fail(res, 'duplicate/slug', error); }
+  if (!slug) return res.status(409).json({ error: 'Could not find a free slug for the copy.' });
+
+  const row = {};
+  for (const k of REVISION_FIELDS) if (src[k] !== undefined) row[k] = src[k];
+  Object.assign(row, {
+    title: `Copy of ${src.title}`.slice(0, 200),
+    slug,
+    status: 'draft',
+    published_at: null,
+    version: 1,
+    created_by: req.admin.id,
+    updated_by: req.admin.id,
+  });
+  await stripUnsupported(supabase, row);
+
+  const { data, error } = await withSupabaseRetry(
+    () => supabase.from('blog_posts').insert(row).select('id, title, slug, status').single(),
+    { label: 'admin-posts-duplicate', attempts: 2 }
+  );
+  if (error) return fail(res, 'duplicate', error);
+
+  console.log(`[admin/posts] DUPLICATED ${src.id} -> ${data.id} slug=${data.slug} by=${req.admin.email}`);
+  return res.status(201).json({ post: data });
+}
+
+/** GET /api/admin/posts/:id/revisions — newest first, without the bodies. */
+async function listRevisions(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
+
+  const supabase = db(res); if (!supabase) return;
+  if (!await revisionsSupported(supabase)) return res.json({ supported: false, revisions: [] });
+
+  const { data, error } = await withSupabaseRetry(
+    () => supabase.from('blog_revisions')
+      .select('id, version, reason, created_at, created_by, title:snapshot->>title, status:snapshot->>status')
+      .eq('post_id', req.params.id)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    { label: 'admin-posts-revisions', attempts: 2 }
+  );
+  if (error) return fail(res, 'revisions', error);
+
+  const emails = await creatorEmails(supabase, data || []);
+  return res.json({
+    supported: true,
+    revisions: (data || []).map((r) => ({
+      id: r.id, version: r.version, reason: r.reason, created_at: r.created_at,
+      title: r.title, status: r.status,
+      created_by_email: r.created_by ? (emails[r.created_by] || null) : null,
+    })),
+  });
+}
+
+/**
+ * GET /api/admin/posts/:id/revisions/:revId
+ *
+ * One snapshot plus its body rendered to HTML, so the editor can load it into
+ * the form. Restoring is deliberately client-side and unsaved: the author sees
+ * the old version, then chooses Save Draft / Publish like any other edit.
+ */
+async function getRevision(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
+
+  const supabase = db(res); if (!supabase) return;
+  if (!await revisionsSupported(supabase)) return res.status(404).json({ error: 'Revision history is not enabled.' });
+
+  const { data, error } = await withSupabaseRetry(
+    () => supabase.from('blog_revisions').select('id, version, created_at, snapshot')
+      .eq('post_id', req.params.id).eq('id', req.params.revId).maybeSingle(),
+    { label: 'admin-posts-revision', attempts: 2 }
+  );
+  if (error) return fail(res, 'revision', error);
+  if (!data) return res.status(404).json({ error: 'Revision not found' });
+
+  return res.json({
+    revision: data,
+    content_html: renderMarkdown((data.snapshot && data.snapshot.content_md) || ''),
+  });
+}
+
 module.exports = {
   list, get, create, update, remove, setStatus, slugCheck, relatedSearch, resolveRelated,
+  titleCheck, duplicate, listRevisions, getRevision,
   // exported for tests and for the editor's mirrored checklist
   buildFields, resolveStatus, missingForPublish, sanitiseMarkdown,
   zonedWallClockToUtc, PUBLISH_REQUIRED, SLUG_RE,

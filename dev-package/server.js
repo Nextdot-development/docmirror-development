@@ -76,6 +76,7 @@ const adminMedia                  = require('./routes/admin/media');
 const adminCategories             = require('./routes/admin/categories');
 const adminPreviewHandler         = require('./routes/admin/preview');
 const adminImportHandler          = require('./routes/admin/import');
+const adminSeo                    = require('./routes/admin/seo');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -197,6 +198,14 @@ for (const [cleanPath, file] of Object.entries(ADMIN_PAGES)) {
     res.sendFile(path.join(__dirname, 'public', 'admin', file));
   });
 }
+// The SEO scorer lives in lib/ because the server scores with it too; the
+// editor loads the very same file so the two can never disagree.
+app.get('/admin/seo-score.js', (_req, res) => {
+  res.set('Content-Type', 'application/javascript; charset=utf-8');
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'lib', 'seo', 'seo-score.js'));
+});
+
 // Editing an existing blog uses the same page; the editor reads the id from the
 // URL and loads it through /api/admin/posts/:id.
 app.get('/admin/blogs/:id/edit', (_req, res) => {
@@ -307,6 +316,7 @@ app.get('/api/admin/options', adminOptionsHandler); // categories, authors, time
 app.get('/api/admin/posts/slug-check',      adminPosts.slugCheck);
 app.get('/api/admin/posts/related-search',  adminPosts.relatedSearch);
 app.get('/api/admin/posts/resolve-related', adminPosts.resolveRelated);
+app.get('/api/admin/posts/title-check',     adminPosts.titleCheck);
 app.get('/api/admin/posts',                 adminPosts.list);
 app.get('/api/admin/posts/:id',             adminPosts.get);
 app.post('/api/admin/posts',                adminPosts.create);
@@ -318,6 +328,14 @@ app.delete('/api/admin/posts/:id',          adminPosts.remove);   // permanent; 
 // its payload, so driving it from a list — which carries a row, not a whole post
 // — would blank everything the list did not send.
 app.post('/api/admin/posts/:id/status',     adminPosts.setStatus);
+app.post('/api/admin/posts/:id/duplicate',  adminPosts.duplicate);   // new draft copy
+app.get('/api/admin/posts/:id/revisions',          adminPosts.listRevisions);
+app.get('/api/admin/posts/:id/revisions/:revId',   adminPosts.getRevision);
+
+// SEO title / meta description score: other pages' titles for the uniqueness
+// rules, and rule-checked rewrite options for the Suggest panel.
+app.get('/api/admin/seo/corpus',   adminSeo.corpus);
+app.post('/api/admin/seo/suggest', adminSeo.suggest);
 
 // Media. The upload takes the raw image bytes rather than multipart, so no new
 // dependency is needed; express.json() above ignores an image Content-Type, so

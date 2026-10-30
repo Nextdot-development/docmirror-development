@@ -186,6 +186,13 @@ function faqFromBody(body) {
   const faq = [];
   let current = null;
   for (let i = start + 1; i < end; i++) {
+    // "**What is AEO?** It is …" — question and answer on one line.
+    const inline = lines[i].match(/^\s*(\*\*|__)(.+?\?)\1\s*[:\-—]?\s+(\S.*)$/);
+    if (inline) {
+      if (current && current.answer.trim()) faq.push(current);
+      current = { question: inline[2].trim(), answer: stripAnswerPrefix(inline[3]) };
+      continue;
+    }
     const q = questionFromLine(lines[i], level);
     if (q) {
       if (current && current.answer.trim()) faq.push(current);
@@ -205,6 +212,117 @@ function faqFromBody(body) {
 
   if (!cleaned.length) return null;
   return { faq: cleaned, start, end };
+}
+
+// ── the editorial comment block ───────────────────────────────────────────
+// Writers often put the SEO brief in an HTML comment at the top of the file
+// instead of in YAML:
+//
+//   <!--
+//   SEO title: AEO for Doctors: What It Is and Why It Matters
+//   Meta description: Learn what answer engine optimisation …
+//   Primary query: aeo for doctors
+//   -->
+//
+// Comments never render, so every comment is stripped from the body; the
+// LEADING ones are read first for `Key: value` lines.
+
+const COMMENT_KEYS = {
+  'seo title': 'seo_title',
+  'meta title': 'seo_title',
+  'meta description': 'meta_description',
+  'primary query': 'focus_keyword',
+  'focus keyword': 'focus_keyword',
+  'focus keyphrase': 'focus_keyword',
+  'keyword': 'focus_keyword',
+  'slug': 'slug',
+  'category': 'category',
+  'tags': 'tags',
+  'author': 'author',
+  'excerpt': 'excerpt',
+  'description': 'excerpt',
+  'image alt': 'image_alt',
+  'related': 'related',
+};
+
+/** Reads the leading <!-- --> comments. Returns { values, body } with ALL comments removed. */
+function readCommentBlock(body) {
+  const values = {};
+  let rest = String(body);
+  let m;
+  while ((m = rest.match(/^\s*<!--([\s\S]*?)-->/))) {
+    for (const line of m[1].split(/\r?\n/)) {
+      const kv = line.match(/^\s*[-*]?\s*([A-Za-z][A-Za-z _-]*?)\s*:\s*(.+?)\s*$/);
+      if (!kv) continue;
+      const key = COMMENT_KEYS[kv[1].toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ')];
+      if (key && !(key in values)) values[key] = kv[2];
+    }
+    rest = rest.slice(m[0].length);
+  }
+  // Any comment elsewhere is an editor's note — it must never reach the page.
+  rest = rest.replace(/<!--[\s\S]*?-->/g, '').replace(/^\s*\n/, '').replace(/\n{3,}/g, '\n\n');
+  return { values, body: rest };
+}
+
+/** "https://site/resources/foo", "/resources/foo", "[x](/resources/foo)", "foo" → "foo" (or ''). */
+function slugFromRef(ref) {
+  let raw = String(ref || '').trim();
+  const link = raw.match(/\]\(\s*([^)\s]+)\s*\)/);          // a Markdown link → its target
+  if (link) raw = link[1];
+  raw = raw.replace(/[?#].*$/, '').replace(/\/+$/, '');
+  const tail = raw.split('/').filter(Boolean).pop() || '';
+  const slug = slugify(tail);
+  return SLUG_RE.test(slug) ? slug : '';
+}
+
+/** Frontmatter `related:` — a list, or a comma string, of slugs / paths / URLs. */
+function relatedFromFrontmatter(value, selfSlug) {
+  const out = [];
+  for (const ref of toArray(value)) {
+    const slug = slugFromRef(ref);
+    if (slug && slug !== selfSlug && !out.includes(slug)) out.push(slug);
+    if (out.length >= MAX_RELATED) break;
+  }
+  return out;
+}
+
+const RELATED_HEADING_RE = /^(related|related (articles?|posts?|reading|guides?|resources)|related in this series|further reading|read next|see also)\b/i;
+
+/**
+ * A "## Related" section. Its links (or bare slugs in a list) become the related
+ * list, and the section is removed from the body — the article template prints
+ * its own "Related in this series" block.
+ */
+function relatedFromSection(body, selfSlug) {
+  const lines = body.split('\n');
+  let start = -1;
+  let level = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^(#{2,4})\s+(.+?)\s*$/);
+    if (m && RELATED_HEADING_RE.test(m[2].replace(/[:\-—(]\s*.*$/, '').trim())) {
+      start = i; level = m[1].length; break;
+    }
+  }
+  if (start === -1) return null;
+
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    const m = lines[i].match(/^(#{1,6})\s+/);
+    if (m && m[1].length <= level) { end = i; break; }
+  }
+
+  const related = [];
+  for (let i = start + 1; i < end; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const links = line.match(/\]\(\s*[^)\s]+\s*\)/g);
+    const refs = links || (/^([-*+]|\d+\.)\s+/.test(line) ? [line.replace(/^([-*+]|\d+\.)\s+/, '')] : []);
+    for (const ref of refs) {
+      const slug = slugFromRef(ref);
+      if (slug && slug !== selfSlug && !related.includes(slug)) related.push(slug);
+    }
+  }
+  return { related: related.slice(0, MAX_RELATED), start, end };
 }
 
 /** Internal links already written in the article become the related list. */
@@ -267,7 +385,13 @@ function parseMarkdownImport(raw, opts) {
 
   const { parsed, repaired } = parseFrontmatter(String(raw || ''));
   const data = parsed.data || {};
-  let body = String(parsed.content || '').replace(/^\n+/, '');
+  const comment = readCommentBlock(String(parsed.content || '').replace(/^\n+/, ''));
+  let body = comment.body;
+  const cv = comment.values;
+  if (Object.keys(cv).length) {
+    notes.push('Read ' + Object.keys(cv).join(', ') + ' from the comment block at the top of the file. ' +
+      'HTML comments were removed from the article body.');
+  }
 
   if (repaired) {
     notes.push(
@@ -315,17 +439,17 @@ function parseMarkdownImport(raw, opts) {
   // Same precedence the live Markdown engine uses: an explicit slug, otherwise
   // the filename, and only then the title.
   const fromFile = filename ? slugify(filename.replace(/\.(md|markdown|txt)$/i, '')) : '';
-  let slug = slugify(String(data.slug || '').trim()) || fromFile || slugify(title);
+  let slug = slugify(String(data.slug || cv.slug || '').trim()) || fromFile || slugify(title);
 
   if (slug && !SLUG_RE.test(slug)) {
     notes.push('The slug could not be used as a URL and was left blank.');
     slug = '';
-  } else if (!data.slug && !fromFile && slug) {
+  } else if (!data.slug && !cv.slug && !fromFile && slug) {
     notes.push(`No slug in the file and no filename, so the URL was built from the title: /resources/${slug} — change it if that is not what you want.`);
   }
 
   // ── the rest ────────────────────────────────────────────────────────────
-  const excerpt = String(data.description || data.excerpt || '').trim();
+  const excerpt = String(data.description || data.excerpt || cv.excerpt || '').trim();
   const image = safeUrl(data.image || data.featuredImage);
   if ((data.image || data.featuredImage) && !image) {
     notes.push('The featured image path was not a usable URL and was skipped — choose one from the media library.');
@@ -333,9 +457,24 @@ function parseMarkdownImport(raw, opts) {
 
   const explicitRead = parseInt(String(data.readTime || data.readingTime || '').match(/\d+/) || 0, 10);
   const when = splitDate(data.date);
-  const related = relatedFromBody(body, slug);
+  // Related: an explicit list (frontmatter, then the comment block) wins, then a
+  // "## Related" section, and only then the internal links inside the prose.
+  let related = relatedFromFrontmatter(data.related || data.related_slugs || data.relatedSlugs || cv.related, slug);
+  const relSection = relatedFromSection(body, slug);
+  if (relSection) {
+    const lines = body.split('\n');
+    body = lines.slice(0, relSection.start).concat(lines.slice(relSection.end)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
   if (related.length) {
-    notes.push(`${related.length} related ${related.length === 1 ? 'article' : 'articles'} picked up from links inside the text.`);
+    notes.push(`${related.length} related ${related.length === 1 ? 'article' : 'articles'} read from the related: list.`);
+  } else if (relSection && relSection.related.length) {
+    related = relSection.related;
+    notes.push(`${related.length} related ${related.length === 1 ? 'article' : 'articles'} read from the "Related" section, which was removed from the body.`);
+  } else {
+    related = relatedFromBody(body, slug);
+    if (related.length) {
+      notes.push(`${related.length} related ${related.length === 1 ? 'article' : 'articles'} picked up from links inside the text.`);
+    }
   }
 
   const fields = {
@@ -343,13 +482,17 @@ function parseMarkdownImport(raw, opts) {
     slug,
     excerpt: excerpt || autoExcerpt(body),
     content_md: body.trim(),
-    author: String(data.author || '').trim(),
-    category: String(data.category || '').trim(),
-    tags: toArray(data.tags),
+    author: String(data.author || cv.author || '').trim(),
+    category: String(data.category || cv.category || '').trim(),
+    tags: toArray(data.tags || cv.tags),
     featured_image: image,
-    image_alt: String(data.imageAlt || data.image_alt || '').trim(),
-    seo_title: String(data.seoTitle || data.seo_title || '').trim(),
-    meta_description: String(data.metaDescription || data.meta_description || '').trim(),
+    image_alt: String(data.imageAlt || data.image_alt || cv.image_alt || '').trim(),
+    // Verbatim from an explicit SEO-title line only — NEVER derived from the H1.
+    seo_title: String(data.seoTitle || data.seo_title || cv.seo_title || '').trim(),
+    meta_description: String(data.metaDescription || data.meta_description || cv.meta_description || '').trim(),
+    // Only what the file names as its target query; never guessed.
+    focus_keyword: String(data.focus_keyword || data.focusKeyword || data.keyword ||
+      data.primary_query || data.primaryQuery || cv.focus_keyword || '').trim(),
     read_time_minutes: explicitRead > 0 ? explicitRead : readingTimeMinutes(body),
     faq,
     related_slugs: related,
@@ -366,7 +509,8 @@ function parseMarkdownImport(raw, opts) {
   const REPORTABLE = [
     ['title', 'Title'], ['slug', 'Slug'], ['category', 'Category'], ['tags', 'Tags'],
     ['author', 'Author'], ['featured_image', 'Featured Image'], ['image_alt', 'Featured Image ALT'],
-    ['seo_title', 'SEO Title'], ['meta_description', 'Meta Description'], ['excerpt', 'Excerpt'],
+    ['seo_title', 'SEO Title'], ['meta_description', 'Meta Description'], ['focus_keyword', 'Focus Keyword'],
+    ['excerpt', 'Excerpt'],
     ['faq', 'FAQ'], ['related_slugs', 'Related in this series'],
   ];
   const filled = [];
@@ -393,6 +537,9 @@ module.exports = {
   faqFromBody,
   questionFromLine,
   relatedFromBody,
+  relatedFromSection,
+  relatedFromFrontmatter,
+  readCommentBlock,
   splitDate,
   MAX_RELATED,
 };

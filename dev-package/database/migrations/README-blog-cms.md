@@ -21,6 +21,17 @@ order. Each is idempotent, so a re-run is safe.
 | 020 | `020_blog_storage.sql` | the `blog-media` Storage bucket + its policies |
 | 021 | `021_profiles_admin_role.sql` | `profiles.role`, the trigger that stops self-promotion, and an optional grant lockdown |
 
+Later additions, run after the above:
+
+| # | File | Adds |
+|---|---|---|
+| 022 | `022_blog_schema_toggles.sql` | per-article BlogPosting / FAQPage switches |
+| 023 | `023_blog_posts_public_view.sql` | view matches the read-time visibility rule |
+| 030 | `030_blog_focus_keyword_revisions.sql` | `focus_keyword`, `version`, and the `blog_revisions` history table |
+
+The app probes for 022 and 030 and keeps working without them (no schema
+toggles / no focus keyword or history panel), so they can be run at any time.
+
 017 must precede 018 and 019 (it defines `update_updated_at_column()`).
 020 and 021 are independent of the rest.
 
@@ -59,8 +70,9 @@ select count(*) from blog_posts;      -- 0
 select id, public, file_size_limit from storage.buckets where id = 'blog-media';
 ```
 
-## Deliberately not built yet
+## Revision history
 
-`blog_revisions` (post history). See the Phase 2 report — it is a real feature,
-but nothing can write a revision until the admin editor exists in Phase 5, and
-the table shape depends on decisions that phase has not made yet.
+`blog_revisions` (migration 030) stores the row as it was before each
+deliberate save (Save Draft, Publish, Schedule, Archive). The 30-second
+autosave does not write revisions. Restoring loads a version into the editor
+unsaved — it never changes status or publish date on its own.

@@ -554,3 +554,53 @@ a { color: var(--green-dark); }
   .adm-who { display: none; }
   .adm-action { flex: 1 1 auto; justify-content: center; }
 }
+
+/* ── blog list: sortable headers, responsive columns ─────────────────────── */
+.adm-nowrap { white-space: nowrap; }
+.adm-table th.is-sortable { cursor: pointer; user-select: none; }
+.adm-table th.is-sortable:hover { color: var(--navy); }
+.adm-table th.is-sorted { color: var(--navy); }
+/* Least important columns go first as the screen narrows; the wrapper's
+   horizontal scroll is the fallback below that. */
+@media (max-width: 1280px) { .adm-table--blogs .col-by { display: none; } }
+@media (max-width: 1140px) { .adm-table--blogs .col-read { display: none; } }
+@media (max-width: 1000px) { .adm-table--blogs .col-upd { display: none; } }
+@media (max-width: 860px)  { .adm-table--blogs .col-cat { display: none; } }
+
+/* ── editor: duplicate title warning ─────────────────────────────────────── */
+.adm-dup-warn {
+  margin-top: .45rem; padding: .55rem .75rem; border-radius: 10px;
+  background: #fff7e6; border: 1px solid #f5d48a; color: #7a5200; font-size: .8rem;
+}
+
+/* ── editor: SEO score ───────────────────────────────────────────────────── */
+.adm-seo-score { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .45rem; font-size: .78rem; }
+.adm-seo-score .adm-hint { flex-basis: 100%; margin: 0; }
+.adm-seo-empty { color: var(--slate-muted); }
+.adm-seo-badge {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 2.1rem; height: 1.6rem;
+  padding: 0 .4rem; border-radius: 999px; font-weight: 700; font-variant-numeric: tabular-nums; color: #fff;
+}
+.adm-seo-badge.is-good { background: var(--green); }
+.adm-seo-badge.is-warn { background: #d98e04; }
+.adm-seo-badge.is-poor { background: var(--danger); }
+.adm-seo-band { font-weight: 600; }
+.adm-seo-band.is-good { color: var(--green-dark); }
+.adm-seo-band.is-warn { color: #9a6400; }
+.adm-seo-band.is-poor { color: var(--danger); }
+.adm-seo-len { color: var(--slate-light); }
+.adm-seo-len.is-off { color: var(--danger); }
+
+.adm-seo-cur { font-size: .9rem; margin-bottom: .8rem; display: flex; align-items: center; gap: .45rem; }
+.adm-seo-h { font-size: .88rem; color: var(--navy); margin: 1rem 0 .5rem; }
+.adm-seo-h small { font-weight: 400; color: var(--slate-muted); font-size: .76rem; margin-left: .3rem; }
+.adm-seo-problems { margin: 0; padding-left: 1.2rem; font-size: .84rem; }
+.adm-seo-problems li { margin-bottom: .55rem; }
+.adm-seo-why { color: var(--slate-light); font-size: .8rem; margin-top: .15rem; }
+.adm-seo-opt { border: 1px solid var(--border); border-radius: 12px; padding: .75rem .85rem; margin-bottom: .6rem; }
+.adm-seo-opt-text { color: var(--navy); font-weight: 600; font-size: .9rem; }
+.adm-seo-opt-meta { color: var(--slate-muted); font-size: .74rem; margin: .2rem 0 .4rem; }
+.adm-seo-rules { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
+.adm-seo-rule { font-size: .72rem; padding: 2px 8px; border-radius: 999px; }
+.adm-seo-rule.is-pass { background: var(--green-light); color: var(--green-dark); }
+.adm-seo-rule.is-fail { background: var(--danger-light); color: var(--danger); }

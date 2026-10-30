@@ -40,6 +40,7 @@
             <div>
               <label class="adm-lbl" for="f-title">Blog Title</label>
               <input id="f-title" class="adm-in" type="text" placeholder="Enter the blog title" maxlength="200">
+              <div id="title-dup" class="adm-dup-warn" hidden></div>
             </div>
 
             <div>
@@ -112,6 +113,10 @@
             <div class="adm-hint" id="rel-hint">
               Covers every existing Resources article and every CMS blog, including
               scheduled ones. New blogs appear here automatically.
+            </div>
+            <div style="display:flex;gap:.5rem;align-items:center;margin-top:.6rem">
+              <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" id="rel-auto">Auto-add latest</button>
+              <span class="adm-hint" id="rel-auto-hint" style="margin:0">Adds the 4 newest published or scheduled blogs in the chosen category.</span>
             </div>
 
             <div style="display:flex;gap:.5rem;margin-top:.6rem">
@@ -187,13 +192,20 @@
 
           <section class="adm-panel adm-fieldset">
             <div>
+              <label class="adm-lbl" for="f-keyword">Focus Keyword <small>the one search query this article targets</small></label>
+              <input id="f-keyword" class="adm-in" type="text" maxlength="120" placeholder="e.g. aeo for doctors" spellcheck="false">
+              <div class="adm-hint" id="keyword-hint"></div>
+            </div>
+            <div>
               <label class="adm-lbl" for="f-seotitle">SEO Title <span class="adm-counter" id="seo-title-count">0/60</span></label>
               <input id="f-seotitle" class="adm-in" type="text" maxlength="120">
-              <div class="adm-hint">Shown as the clickable headline in Google. Defaults to the blog title.</div>
+              <div class="adm-hint">Shown as the clickable headline in Google. Write it for the results page — it is not copied from the blog title.</div>
+              <div class="adm-seo-score" id="seo-title-score"></div>
             </div>
             <div>
               <label class="adm-lbl" for="f-metadesc">Meta Description <span class="adm-counter" id="meta-desc-count">0/160</span></label>
               <textarea id="f-metadesc" class="adm-ta" maxlength="320"></textarea>
+              <div class="adm-seo-score" id="meta-desc-score"></div>
             </div>
             <div>
               <label class="adm-lbl" for="f-readtime">Read Time <small>auto, editable</small></label>
@@ -230,7 +242,7 @@
       </div>
 
       <div class="adm-actionbar">
-        <span class="adm-spacer" id="save-state"></span>
+        <span class="adm-spacer"><span id="save-state"></span> <small class="adm-hint" id="autosave-note" style="display:inline;margin:0"></small></span>
         <button type="button" class="adm-btn adm-btn--ghost" id="btn-draft">Save Draft</button>
         <button type="button" class="adm-btn adm-btn--warn" id="btn-schedule">Schedule</button>
         <button type="button" class="adm-btn adm-btn--ghost" id="btn-archive">Archive</button>
@@ -301,7 +313,36 @@
 
 <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none">
 
+<!-- ── SEO suggest ─────────────────────────────────────────────────────── -->
+<div class="adm-modal" id="suggest-modal">
+  <div class="adm-modal-box">
+    <div class="adm-modal-head">
+      <h3 id="suggest-title">Improve the SEO title</h3>
+      <button type="button" class="adm-x" id="suggest-close">Close</button>
+    </div>
+    <div class="adm-modal-body" id="suggest-body"></div>
+  </div>
+</div>
+
+<!-- ── version history ─────────────────────────────────────────────────── -->
+<div class="adm-modal" id="history-modal">
+  <div class="adm-modal-box">
+    <div class="adm-modal-head">
+      <h3>Version history</h3>
+      <button type="button" class="adm-x" id="history-close">Close</button>
+    </div>
+    <div class="adm-modal-body">
+      <p class="adm-hint" style="margin-bottom:.8rem">
+        Each save keeps the version it replaced. Restoring loads that version into the editor —
+        nothing changes on the site until you choose Save Draft or Publish.
+      </p>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
 <script src="/admin/admin-auth.js"></script>
+<script src="/admin/seo-score.js"></script>
 <script src="/admin/admin-shell.js"></script>
 <script src="/admin/editor.js"></script>
 
