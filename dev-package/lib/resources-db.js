@@ -57,11 +57,31 @@ const FAILURE_BACKOFF_MS = Math.max(parseInt(process.env.RESOURCES_CMS_BACKOFF_M
 const MAX_POSTS = 500;
 
 let _posts = [];          // last known-good mapped set
+let _redirects = new Map();  // old_slug -> new_slug (migration 031), last known-good
 let _loadedAt = 0;        // when that set was fetched (0 = never)
 let _attemptedAt = 0;     // when a fetch was last attempted, success or not
 let _inflight = null;     // shared promise so concurrent cold requests fetch once
 let _lastError = null;
 let _collisionsLogged = new Set();
+
+/**
+ * blog_redirects (migration 031). Best effort and silent on any failure,
+ * including the table not existing yet on a database that has not run 031 —
+ * a missing redirect table must never be able to break the posts load it
+ * rides alongside.
+ */
+async function loadRedirects(supabase) {
+  try {
+    const { data, error } = await supabase.from('blog_redirects').select('old_slug, new_slug').limit(2000);
+    if (error) throw error;
+    const map = new Map();
+    for (const r of data || []) if (r.old_slug && r.new_slug) map.set(r.old_slug, r.new_slug);
+    _redirects = map;
+  } catch (_) {
+    // Leave the last known-good map in place — same "degrade, never throw"
+    // rule as the posts load below.
+  }
+}
 
 /**
  * The CMS source is on when Supabase is configured, unless explicitly disabled.
@@ -107,6 +127,8 @@ async function load() {
     if (data.length >= MAX_POSTS) {
       console.warn(`[resources-db] hit the ${MAX_POSTS}-post ceiling — raise MAX_POSTS before the archive grows further`);
     }
+
+    await loadRedirects(supabase);
 
     const mapped = [];
     for (const row of data) {
@@ -172,6 +194,12 @@ function getBySlug(slug) {
   return _posts.find((p) => p.slug === slug) || null;
 }
 
+/** Current slug for a renamed slug, or null. See loadRedirects above. */
+function getRedirect(slug) {
+  if (!isEnabled() || !slug) return null;
+  return _redirects.get(slug) || null;
+}
+
 /** Diagnostics for the Step I verification suite and future admin tooling. */
 function status() {
   return {
@@ -192,7 +220,7 @@ function _setPostsForTest(posts) {
   _lastError = null;
 }
 function _reset() {
-  _posts = []; _loadedAt = 0; _attemptedAt = 0; _inflight = null; _lastError = null;
+  _posts = []; _redirects = new Map(); _loadedAt = 0; _attemptedAt = 0; _inflight = null; _lastError = null;
   _collisionsLogged = new Set();
 }
 
@@ -208,7 +236,7 @@ function noteCollision(slug) {
 }
 
 module.exports = {
-  isEnabled, refresh, getPosts, getBySlug, status, noteCollision,
+  isEnabled, refresh, getPosts, getBySlug, getRedirect, status, noteCollision,
   PUBLISHABLE, TTL_MS, FAILURE_BACKOFF_MS,
   _setPostsForTest, _reset, _load: load,
 };

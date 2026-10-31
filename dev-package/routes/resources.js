@@ -18,6 +18,7 @@ const {
   getAllResources,
   getResourceBySlug,
   getRelated,
+  getRedirect,
 } = require('../lib/resources');
 
 // ── shared head + shell ────────────────────────────────────────────────────
@@ -144,7 +145,10 @@ function absUrl(src) {
 }
 
 // Full HTML document shell — head SEO + Doc Mirror header/footer mounts.
-function renderShell({ title, description, canonical, ogType, ogImage, jsonLd, body }) {
+// twitterImage defaults to ogImage when not given, so every existing caller
+// (which never passes it) renders byte-for-byte what it always has.
+function renderShell({ title, description, canonical, ogType, ogImage, twitterImage, jsonLd, body }) {
+  const twImage = twitterImage || ogImage;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -168,7 +172,7 @@ function renderShell({ title, description, canonical, ogType, ogImage, jsonLd, b
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
-<meta name="twitter:image" content="${escapeHtml(ogImage)}">
+<meta name="twitter:image" content="${escapeHtml(twImage)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <script type="application/ld+json">${jsonLd}</script>
@@ -315,7 +319,11 @@ ${CTA_BLOCK}`;
 // ── article page ───────────────────────────────────────────────────────────
 
 function renderArticle(post) {
-  const ogImage = absUrl(post.image);
+  // Optional per-post overrides (migration 031). Absent on every Markdown
+  // article and on any CMS post that never set one, so this falls back to
+  // exactly what it has always derived.
+  const ogImage = absUrl(post.ogImageOverride || post.image);
+  const twitterImage = post.twitterImageOverride ? absUrl(post.twitterImageOverride) : ogImage;
 
   const hero = cardMedia(post, 'res-hero', { eager: true });
 
@@ -431,6 +439,7 @@ ${relatedBlock}
     canonical: post.canonical,
     ogType: 'article',
     ogImage,
+    twitterImage,
     jsonLd,
     body,
   });
@@ -507,9 +516,17 @@ function notFoundHandler(req, res) {
 
 function articleHandler(req, res) {
   const post = getResourceBySlug(req.params.slug);
-  if (!post) return sendNotFound(req, res);
-  res.set('Content-Type', 'text/html; charset=utf-8');
-  res.send(renderArticle(post));
+  if (post) {
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    return res.send(renderArticle(post));
+  }
+  // A slug that was once live and has since been renamed (migration 031):
+  // 301 to the current address instead of 404ing a URL that may be indexed,
+  // linked or bookmarked. getRedirect resolves to null on anything else,
+  // including when the table has not been migrated yet.
+  const to = getRedirect(req.params.slug);
+  if (to) return res.redirect(301, `/resources/${to}`);
+  return sendNotFound(req, res);
 }
 
 /**

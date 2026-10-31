@@ -234,10 +234,11 @@ function checkOrchestratorContract() {
   check('exports warmResources', typeof orch.warmResources === 'function');
   // The orchestrator may add source-management helpers on top of the frozen
   // read API. `refresh` is what warmResources drives; `cmsStatus` is read-only
-  // diagnostics. Neither is a content reader, so neither can change what a page
-  // renders — but the list is explicit so a genuinely unexpected export still
-  // fails this check.
-  const ALLOWED_EXTRAS = ['warmResources', 'refresh', 'cmsStatus'];
+  // diagnostics; `getRedirect` (migration 031) resolves a renamed live slug to
+  // its current one. None is a content reader on its own — getRedirect returns
+  // a bare slug, never a post — so none can change what a page renders, but
+  // the list is explicit so a genuinely unexpected export still fails this check.
+  const ALLOWED_EXTRAS = ['warmResources', 'refresh', 'cmsStatus', 'getRedirect'];
   check('exports nothing beyond the frozen API plus known helpers',
     Object.keys(orch).every((k) => PUBLIC_API.includes(k) || ALLOWED_EXTRAS.includes(k)),
     Object.keys(orch).filter((k) => !PUBLIC_API.includes(k) && !ALLOWED_EXTRAS.includes(k)).join(', '));

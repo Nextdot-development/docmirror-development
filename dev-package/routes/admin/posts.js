@@ -22,6 +22,7 @@ const { getSupabaseClient, withSupabaseRetry, formatFetchError } = require('../.
 const { slugify, getAllResources, getResourceBySlug } = require('../../lib/resources');
 const { readingTimeMinutes, autoExcerpt, renderMarkdown, BASE_PATH } = require('../../lib/blog-post-mapper');
 const { stripInternalLinks } = require('../../lib/strip-internal-links');
+const { markdownToBlocks } = require('../../lib/content-blocks');
 // Reused rather than re-derived: the list, the dashboard counts and the public
 // read must agree on what "published right now" means, down to the edge case of
 // a row marked 'published' with a future date.
@@ -91,10 +92,35 @@ async function revisionsSupported(supabase) {
   return _revisionsSupported;
 }
 
+// Added by migration 031: canonical/OG/Twitter overrides, the persisted
+// timezone, the immutable first-publish stamp, and the structured-block
+// mirror of content_md. Probed the same way as 022/030 — absent, the editor
+// simply has no override fields and no blocks column to fill.
+const V3_COLUMNS = ['canonical_url', 'og_image', 'twitter_image', 'time_zone', 'first_published_at', 'content_blocks'];
+let _v3Supported = null;
+let _redirectsSupported = null;
+
+async function v3Supported(supabase) {
+  if (_v3Supported !== null) return _v3Supported;
+  const { error } = await supabase.from('blog_posts').select(V3_COLUMNS.join(', ')).limit(0);
+  _v3Supported = !error;
+  if (!_v3Supported) console.warn('[admin/posts] migration 031 not applied — SEO overrides, persisted timezone and blocks disabled');
+  return _v3Supported;
+}
+
+async function redirectsSupported(supabase) {
+  if (_redirectsSupported !== null) return _redirectsSupported;
+  const { error } = await supabase.from('blog_redirects').select('old_slug').limit(0);
+  _redirectsSupported = !error;
+  if (!_redirectsSupported) console.warn('[admin/posts] migration 031 not applied — slug-change redirects disabled, slug stays locked once live');
+  return _redirectsSupported;
+}
+
 async function selectColumns(supabase) {
   let cols = BASE_COLUMNS;
   if (await togglesSupported(supabase)) cols += ', ' + SCHEMA_TOGGLE_COLUMNS.join(', ');
   if (await v2Supported(supabase)) cols += ', ' + V2_COLUMNS.join(', ');
+  if (await v3Supported(supabase)) cols += ', ' + V3_COLUMNS.join(', ');
   return cols;
 }
 
@@ -102,6 +128,7 @@ async function selectColumns(supabase) {
 async function stripUnsupported(supabase, row) {
   if (!await togglesSupported(supabase)) SCHEMA_TOGGLE_COLUMNS.forEach((c) => { delete row[c]; });
   if (!await v2Supported(supabase)) V2_COLUMNS.forEach((c) => { delete row[c]; });
+  if (!await v3Supported(supabase)) V3_COLUMNS.forEach((c) => { delete row[c]; });
   return row;
 }
 
@@ -113,6 +140,7 @@ const REVISION_FIELDS = [
   'title', 'slug', 'excerpt', 'content_md', 'author', 'category', 'tags', 'read_time_minutes',
   'featured_image', 'image_alt', 'seo_title', 'meta_description', 'focus_keyword', 'faq',
   'related_slugs', 'enable_article_schema', 'enable_faq_schema', 'status', 'published_at',
+  'canonical_url', 'og_image', 'twitter_image', 'time_zone', 'content_blocks',
 ];
 
 /**
@@ -131,6 +159,26 @@ async function writeRevision(supabase, existing, adminId, reason) {
     created_by: adminId,
   });
   if (error) console.warn(`[admin/posts] revision write failed for ${existing.id}: ${error.message}`);
+}
+
+/**
+ * Records that `oldSlug` now lives at `newSlug` (migration 031). Best effort,
+ * same as writeRevision: a failure here is logged and never blocks the save
+ * that already succeeded.
+ *
+ * Collapses chains so a lookup is always one hop: any earlier redirect that
+ * pointed AT oldSlug (someone renamed A -> B, and now B -> C) is rewritten to
+ * point straight at newSlug, instead of leaving A -> B -> C to be followed.
+ */
+async function writeRedirect(supabase, oldSlug, newSlug, postId) {
+  try {
+    await supabase.from('blog_redirects').update({ new_slug: newSlug }).eq('new_slug', oldSlug);
+    const { error } = await supabase.from('blog_redirects')
+      .upsert({ old_slug: oldSlug, new_slug: newSlug, post_id: postId }, { onConflict: 'old_slug' });
+    if (error) throw error;
+  } catch (error) {
+    console.warn(`[admin/posts] redirect write failed (${oldSlug} -> ${newSlug}): ${error.message}`);
+  }
 }
 
 /** Reads the toggles off a row, defaulting to on when the columns are absent. */
@@ -216,6 +264,17 @@ function safeUrl(value) {
   return '';
 }
 
+/** Is this a zone Intl actually knows, e.g. "Asia/Kolkata"? */
+function isValidTimeZone(tz) {
+  if (!tz) return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 // ── payload normalisation ───────────────────────────────────────────────────
 
 function cleanStringArray(value, { max = 50, asSlug = false } = {}) {
@@ -283,6 +342,22 @@ function buildFields(body, { existing = null } = {}) {
   f.focus_keyword    = String(body.focus_keyword || '').trim().slice(0, 120) || null;
   f.faq              = cleanFaq(body.faq);
 
+  // Optional overrides (migration 031). Blank means "keep deriving it",
+  // exactly as every post has behaved until now.
+  f.canonical_url = safeUrl(body.canonical_url) || null;
+  f.og_image      = safeUrl(body.og_image) || null;
+  f.twitter_image = safeUrl(body.twitter_image) || null;
+
+  // The zone the author picked, for the editor to show back correctly. Display
+  // only — resolveStatus() below still converts it to a UTC published_at,
+  // which is the only thing that gates or sorts anything.
+  const tz = String(body.timezone || '').trim();
+  f.time_zone = isValidTimeZone(tz) ? tz : (existing ? existing.time_zone : null) || 'Asia/Kolkata';
+
+  // Best-effort structured-block mirror of the body (migration 031). Never
+  // blocks a save: a parse failure just leaves this column null.
+  f.content_blocks = markdownToBlocks(f.content_md);
+
   f.related_slugs = cleanStringArray(body.related_slugs, { max: MAX_RELATED, asSlug: true })
     .filter((s) => s !== f.slug);              // an article is not related to itself
 
@@ -300,22 +375,19 @@ function buildFields(body, { existing = null } = {}) {
   // it matches what the Markdown layer does for a post with no `description`.
   if (!f.excerpt) f.excerpt = autoExcerpt(f.content_md);
 
-  // ── slug lock ───────────────────────────────────────────────────────────
-  // Once a URL has been live it is indexed and linked. Changing it silently
-  // 404s the old address, so it is frozen from the moment the article first
-  // goes public. A draft or a still-pending scheduled post is free to change.
+  // ── slug change on a live article (migration 031) ────────────────────────
+  // Once a URL has been live it is indexed and linked, so changing it must
+  // never silently 404 the old address. Rather than freezing the field, the
+  // caller writes a redirect (old -> new) alongside the save — see
+  // `redirectFrom` below and update(). Without migration 031 the table does
+  // not exist, so the slug stays frozen exactly as it did before this change.
+  let redirectFrom = null;
   if (existing) {
     const wasLive = existing.published_at && Date.parse(existing.published_at) <= Date.now();
-    if (wasLive && f.slug !== existing.slug) {
-      errors.push(
-        `The URL is locked because this article has been published. ` +
-        `It stays /resources/${existing.slug}.`
-      );
-      f.slug = existing.slug;
-    }
+    if (wasLive && f.slug !== existing.slug) redirectFrom = existing.slug;
   }
 
-  return { fields: f, errors };
+  return { fields: f, errors, redirectFrom };
 }
 
 /** Which publish-required fields are still empty. */
@@ -536,6 +608,8 @@ async function get(req, res) {
     schema_toggles_supported: await togglesSupported(supabase),
     focus_keyword_supported: await v2Supported(supabase),
     revisions_supported: await revisionsSupported(supabase),
+    spec_parity_supported: await v3Supported(supabase),
+    slug_redirects_supported: await redirectsSupported(supabase),
     // Rendered here so the editor can load an existing body into the visual
     // editor without needing a Markdown parser in the browser.
     content_html: require('../../lib/blog-post-mapper').renderMarkdown(data.content_md || ''),
@@ -739,11 +813,13 @@ async function create(req, res) {
     ...fields,
     status: st.status,
     published_at: st.published_at,
+    first_published_at: st.status === 'published' ? st.published_at : null,
     created_by: req.admin.id,
     updated_by: req.admin.id,
   };
-  // Drop columns from migrations 022/030 that have not been applied, so a save
-  // fails on nothing more than a column the database has not been told about.
+  // Drop columns from migrations 022/030/031 that have not been applied, so a
+  // save fails on nothing more than a column the database has not been told
+  // about.
   const cols = await selectColumns(supabase);
   await stripUnsupported(supabase, row);
 
@@ -780,11 +856,20 @@ async function update(req, res) {
     return res.status(409).json({ error: 'Autosave only runs on drafts.', autosave_skipped: true });
   }
 
-  const { fields, errors } = buildFields(req.body || {}, { existing });
+  const { fields, errors, redirectFrom } = buildFields(req.body || {}, { existing });
   const st = resolveStatus(action, req.body || {}, fields, existing);
   const allErrors = errors.concat(st.errors);
 
   if (allErrors.length) return res.status(400).json({ error: allErrors[0], errors: allErrors });
+
+  // Without migration 031 there is nowhere to record the redirect, so the old
+  // URL would just 404 — same protective error the slug lock has always given.
+  if (redirectFrom && !await redirectsSupported(supabase)) {
+    return res.status(409).json({
+      error: `The URL is locked because this article has been published. It stays /resources/${existing.slug}.`,
+      field: 'slug',
+    });
+  }
 
   if (fields.slug !== existing.slug) {
     try {
@@ -801,6 +886,11 @@ async function update(req, res) {
     published_at: st.published_at,
     updated_by: req.admin.id,
   };
+  // Set once, on the save that first makes the post published, and never
+  // overwritten after — see migration 031.
+  if (st.status === 'published' && !existing.first_published_at) {
+    row.first_published_at = st.published_at;
+  }
   // Every deliberate save keeps the previous state; the 30s autosave does not,
   // or the history would be a wall of near-identical snapshots.
   if (action !== 'autosave') {
@@ -814,6 +904,8 @@ async function update(req, res) {
     { label: 'admin-posts-update', attempts: 2 }
   );
   if (error) return fail(res, 'update', error);
+
+  if (redirectFrom) await writeRedirect(supabase, redirectFrom, data.slug, data.id);
 
   console.log(`[admin/posts] UPDATED id=${data.id} slug=${data.slug} status=${data.status} by=${req.admin.email}`);
   return res.json({ post: Object.assign({}, data, readToggles(data)) });
@@ -859,6 +951,8 @@ async function setStatus(req, res) {
   const patch = await stripUnsupported(supabase, {
     status: st.status, published_at: st.published_at, updated_by: req.admin.id,
     version: (existing.version || 1) + 1,
+    ...(st.status === 'published' && !existing.first_published_at
+      ? { first_published_at: st.published_at } : {}),
   });
 
   const { data, error } = await withSupabaseRetry(
@@ -1010,6 +1104,7 @@ async function duplicate(req, res) {
     slug,
     status: 'draft',
     published_at: null,
+    first_published_at: null,
     version: 1,
     created_by: req.admin.id,
     updated_by: req.admin.id,

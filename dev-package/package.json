@@ -19,7 +19,8 @@
     "verify-import": "node scripts/verify-markdown-import.js",
     "vercel-build": "echo 'Static + serverless — no build step'",
     "check-meta": "node lib/seo/check-meta.js",
-    "verify-cms": "node scripts/verify-blog-cms.js"
+    "verify-cms": "node scripts/verify-blog-cms.js",
+    "verify-spec-parity": "node scripts/verify-blog-spec-parity.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",

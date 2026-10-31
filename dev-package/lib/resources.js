@@ -167,6 +167,16 @@ function resourceSitemapEntries() {
 // same function objects so callers such as scripts/publish-resource.js keep
 // importing them from here.
 
+/**
+ * Current slug for a renamed, previously-live article (migration 031), or
+ * null when there is no redirect — including when the table does not exist
+ * yet. Checked only after both sources have already missed the slug, so it
+ * never shadows a real article or a Markdown collision.
+ */
+function getRedirect(slug) {
+  return db.getRedirect(markdown.slugify(slug));
+}
+
 module.exports = {
   SITE: markdown.SITE,
   escapeHtml: markdown.escapeHtml,
@@ -174,6 +184,7 @@ module.exports = {
   getAllResources,
   getResourceBySlug,
   getRelated,
+  getRedirect,
   resourceSitemapEntries,
   warmResources,
   refresh,

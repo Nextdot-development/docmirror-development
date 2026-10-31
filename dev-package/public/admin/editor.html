@@ -44,7 +44,7 @@
             </div>
 
             <div>
-              <label class="adm-lbl" for="f-slug">Slug <small>auto-generated from the title, editable</small></label>
+              <label class="adm-lbl" for="f-slug">Slug <small>auto-generated from the title, editable — changing it on a live article creates a redirect</small></label>
               <input id="f-slug" class="adm-in" type="text" placeholder="blog-url-slug" spellcheck="false">
               <div id="slug-hint" class="adm-hint"></div>
             </div>
@@ -214,6 +214,24 @@
             <div>
               <label class="adm-lbl" for="f-canonical">Canonical URL <small>auto from the slug</small></label>
               <input id="f-canonical" class="adm-in" type="text" readonly>
+            </div>
+          </section>
+
+          <section class="adm-panel adm-fieldset">
+            <div class="adm-panel-head" style="margin-bottom:0">
+              <h2 style="font-size:.92rem">SEO Overrides <small style="font-weight:400;color:var(--slate-muted);font-size:.8rem">(optional)</small></h2>
+            </div>
+            <div>
+              <label class="adm-lbl" for="f-canonical-override">Canonical URL override</label>
+              <input id="f-canonical-override" class="adm-in" type="text" placeholder="Leave blank to keep the auto canonical above" spellcheck="false">
+            </div>
+            <div>
+              <label class="adm-lbl" for="f-og-image">Open Graph image override</label>
+              <input id="f-og-image" class="adm-in" type="text" placeholder="Leave blank to use the featured image" spellcheck="false">
+            </div>
+            <div>
+              <label class="adm-lbl" for="f-twitter-image">Twitter card image override</label>
+              <input id="f-twitter-image" class="adm-in" type="text" placeholder="Leave blank to use the Open Graph image" spellcheck="false">
             </div>
           </section>
 

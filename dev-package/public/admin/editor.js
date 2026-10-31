@@ -937,6 +937,9 @@
       publish_date: $('f-date').value,
       publish_time: $('f-time').value,
       timezone: $('f-tz').value,
+      canonical_url: $('f-canonical-override').value.trim(),
+      og_image: $('f-og-image').value.trim(),
+      twitter_image: $('f-twitter-image').value.trim(),
     };
   }
 
@@ -1042,12 +1045,15 @@
 
   function applySlugLock(post) {
     var live = post.published_at && Date.parse(post.published_at) <= Date.now();
+    // "Locked" here means "live", not "uneditable" — the slug stays editable;
+    // changing it on a live article writes a redirect (old -> new) on save so
+    // the previous URL 301s instead of 404ing. If the database has not run
+    // migration 031 yet the server still rejects the change outright, with the
+    // same message this used to show unconditionally.
     state.slugLocked = !!live;
-    var el = $('f-slug');
-    el.readOnly = state.slugLocked;
     if (state.slugLocked) {
       $('slug-hint').className = 'adm-hint';
-      $('slug-hint').textContent = 'Locked — this article has been published, so its URL cannot change.';
+      $('slug-hint').textContent = 'This article is live. Changing the URL will redirect the old address here.';
     }
   }
 
@@ -1262,9 +1268,11 @@
 
       $('f-date').value = keep.date;
       $('f-time').value = keep.time;
+      // Restoring loads the OLD content into the editor, but a past revision's
+      // slug is not a slug change the author asked for — the current slug
+      // (and whatever redirect it may already imply) is left exactly as is.
       if (keep.locked) { $('f-slug').value = keep.slug; }
       state.slugLocked = keep.locked;
-      $('f-slug').readOnly = keep.locked;
 
       renderFaq(); renderRelated(); renderTags(); renderFeaturedPreview();
       updateCanonical(); updateReadTime(); updateSchemaHint(); renderSeoScores();
@@ -1338,6 +1346,10 @@
     $('f-seotitle').value = p.seo_title || '';
     $('f-metadesc').value = p.meta_description || '';
     $('f-keyword').value = p.focus_keyword || '';
+    $('f-canonical-override').value = p.canonical_url || '';
+    $('f-og-image').value = p.og_image || '';
+    $('f-twitter-image').value = p.twitter_image || '';
+    if (p.time_zone) $('f-tz').value = p.time_zone;
     if (p.read_time_minutes) { $('f-readtime').value = p.read_time_minutes; $('f-readtime').dataset.touched = '1'; }
 
     $('f-schema-article').checked = p.enable_article_schema !== false;
@@ -1534,7 +1546,8 @@
       updateCanonical(); checkSlug(); markDirty();
     });
 
-    ['f-excerpt', 'f-author', 'f-category', 'f-tags', 'f-image', 'f-alt', 'f-date', 'f-time', 'f-tz']
+    ['f-excerpt', 'f-author', 'f-category', 'f-tags', 'f-image', 'f-alt', 'f-date', 'f-time', 'f-tz',
+     'f-canonical-override', 'f-og-image', 'f-twitter-image']
       .forEach(function (id) {
         $(id).addEventListener('input', markDirty);
         $(id).addEventListener('change', markDirty);

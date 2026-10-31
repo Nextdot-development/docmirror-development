@@ -133,10 +133,12 @@ function mapRow(row) {
   const excerpt = String(row.excerpt || '').trim() || autoExcerpt(md);
   const tags    = Array.isArray(row.tags) ? row.tags.map(String).filter(Boolean) : [];
 
+  const canonicalOverride = String(row.canonical_url || '').trim();
+
   return {
     slug,
     url:             `${BASE_PATH}/${slug}`,
-    canonical:       `${SITE}${BASE_PATH}/${slug}`,
+    canonical:       canonicalOverride || `${SITE}${BASE_PATH}/${slug}`,
     title,
     seoTitle:        String(row.seo_title || title),
     metaDescription: String(row.meta_description || excerpt),
@@ -170,6 +172,18 @@ function mapRow(row) {
     relatedSlugs: Array.isArray(row.related_slugs)
       ? row.related_slugs.map(String).filter(Boolean)
       : [],
+
+    // Optional per-post image overrides (migration 031). Absent on every
+    // Markdown article and on any CMS post that never set one — routes/
+    // resources.js falls back to the featured image exactly as before.
+    ogImageOverride:      String(row.og_image || '').trim() || null,
+    twitterImageOverride: String(row.twitter_image || '').trim() || null,
+
+    // First-ever-live timestamp (migration 031) and the structured-block
+    // mirror of content_md (migration 031). Neither is read by the renderer;
+    // carried through for diagnostics and for anything that wants blocks.
+    firstPublishedAt: row.first_published_at || null,
+    contentBlocks:    row.content_blocks || null,
 
     // Provenance. Used for two things and nothing else: rendering tag chips on
     // CMS articles only (the 24 Markdown articles keep their current design,
