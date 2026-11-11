@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/The-Complete-Guide.png
 imageAlt: "The complete guide to Google Business Profile for doctors — get found by patients on Google and Maps"
 tags: [Google Business Profile, Local SEO, Google Maps, India]
-seoTitle: "Google Business Profile for Doctors in India: Full Guide | The Doc Mirror"
-metaDescription: A step-by-step guide for Indian doctors to set up, verify, and optimise a Google Business Profile so patients find your clinic accurately on Google and Maps.
+seoTitle: "Google Business Profile Setup Guide for Indian Doctors"
+metaDescription: "Follow this step-by-step guide for Indian doctors to set up, verify, and optimise a Google Business Profile so patients find your clinic accurately."
 faq:
   - question: Is a Google Business Profile free for doctors?
     answer: Yes. Creating, verifying, and maintaining a Google Business Profile is free. There is no charge to appear in Google Search or on Google Maps, and no paid tier is required to complete or optimise your listing.

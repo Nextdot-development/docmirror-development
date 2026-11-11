@@ -7,8 +7,8 @@ category: Practice Growth
 image: /images/resources/Trust-signal.jpeg
 imageAlt: Trust signal
 tags: [Practice Growth, Patient Trust, Patient Reviews, Online Visibility]
-seoTitle: "Trust Signals That Make Patients Choose a Doctor | The Doc Mirror"
-metaDescription: "The ranked trust signals that make patients pick one doctor over another online: rating, review count, recency, photos, consistency, credentials, and responses."
+seoTitle: "Trust Signals: Why Patients Pick One Doctor Over Another"
+metaDescription: "See the ranked trust signals that make patients choose one doctor over another online: rating, review count, recency, photos, credentials, and responses."
 faq:
   - question: What is the most important trust signal for choosing a doctor?
     answer: "The star rating is usually the first filter, but review count, recency, and photos follow closely. No single signal decides it. Patients form an overall impression from several signals within the first minute, so a profile needs to be strong across all of them, in roughly that order."

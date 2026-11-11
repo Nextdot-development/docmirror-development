@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/Do-Patient-Reviews-Affect.png
 imageAlt: Do Patient Reviews Affect.
 tags: [AI Visibility, Patient Reviews, Reputation Management, ChatGPT]
-seoTitle: "Reviews and AI Recommendation: Do They Matter? | The Doc Mirror"
-metaDescription: "Do patient reviews affect whether AI recommends your clinic? The honest answer. Reviews shape Google's local pack, but AI naming leans more on data."
+seoTitle: "Do Reviews Affect AI Recommendations for Your Clinic?"
+metaDescription: "Discover whether patient reviews affect which clinic AI assistants recommend. Reviews shape Google's local pack, but AI naming leans more on structured data."
 faq:
   - question: Do Google reviews help me show up in ChatGPT answers?
     answer: "Only indirectly. ChatGPT does not usually count your live star rating when it composes an answer. What helps is that genuine reviews keep your Google Business Profile and directory listings full, active, and recent, so those sources are more likely to be treated as a real clinic worth naming. Consistent data and third-party mentions do more of the direct work."

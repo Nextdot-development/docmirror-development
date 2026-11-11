@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/ai-visibility-for-doctors.png
 imageAlt: AI Visibility for Doctors — be the doctor AI recommends
 tags: [AI Visibility, ChatGPT, Gemini, GEO]
-seoTitle: AI Visibility for Doctors — ChatGPT, Gemini & Claude | The Doc Mirror
-metaDescription: Learn how doctors appear inside ChatGPT, Gemini, and Claude, why AI visibility matters, and the concrete steps to improve it.
+seoTitle: "AI Visibility for Doctors: ChatGPT, Gemini and Claude"
+metaDescription: "Learn how your practice appears inside ChatGPT, Gemini, Claude, and AI search, and why AI visibility is quickly becoming as important as Google."
 faq:
   - question: What is AI visibility for doctors?
     answer: AI visibility is whether tools like ChatGPT, Gemini, and Claude recommend you by name when a patient asks for a doctor in your specialty and city. Unlike SEO, which ranks links, AI visibility depends on how well-established and well-cited you are as an entity across the sources these models trust.

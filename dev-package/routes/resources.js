@@ -306,8 +306,8 @@ ${cards}
 ${CTA_BLOCK}`;
 
   return renderShell({
-    title: 'Resources — Doctor Visibility Guides | The Doc Mirror',
-    description: 'Guides to help doctors understand Google visibility, AI visibility, ChatGPT ranking, and online presence.',
+    title: 'Doctor Visibility Guides: Google, AI and SEO Resources',
+    description: 'Browse guides on Google visibility, AI visibility, and SEO for doctors. Learn how patients and AI assistants find your practice, and how to improve it.',
     canonical,
     ogType: 'website',
     ogImage: DEFAULT_OG_IMAGE,

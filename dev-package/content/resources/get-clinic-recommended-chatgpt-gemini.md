@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/how-to-recommend-clinic.png
 imageAlt: "How to get your clinic recommended by ChatGPT and Gemini — strong directory presence, schema markup, and consistent business data"
 tags: [ChatGPT, Gemini, AI Visibility, Directories]
-seoTitle: "How to Get Your Clinic Recommended by ChatGPT and Gemini | The Doc Mirror"
-metaDescription: A step-by-step guide for US doctors on how to appear when patients ask ChatGPT and Gemini for a recommendation.
+seoTitle: "Get Your Clinic Recommended by ChatGPT and Gemini"
+metaDescription: "Follow this step-by-step guide for doctors to appear when patients ask ChatGPT and Gemini for a recommendation, and see what to fix on your profile first."
 faq:
   - question: How do I get ChatGPT to recommend my clinic?
     answer: List your practice on six or more medical directories with identical name, address, and phone details, add schema markup to your website, and keep your business data consistent everywhere. These signals build the confidence an AI assistant needs to name you.

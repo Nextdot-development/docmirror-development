@@ -7,8 +7,8 @@ category: Practice Growth
 image: /images/resources/Why-Most-Doctors-Ignore.jpeg
 imageAlt: "Why Most Doctors Ignore Online Visibility - and the Hidden Cost of Doing Nothing"
 tags: [Practice Growth, Online Visibility, Patient Acquisition, AI Visibility]
-seoTitle: "The Hidden Cost of Poor Online Visibility for Doctors | The Doc Mirror"
-metaDescription: Most doctors ignore online visibility because the cost is invisible. Here is why doing nothing quietly hands patients to competitors.
+seoTitle: "The Hidden Cost of Ignoring Your Online Visibility"
+metaDescription: "Discover why most doctors ignore online visibility because the cost feels invisible, and how doing nothing quietly hands patients to competitors."
 faq:
   - question: Why do so many doctors ignore online visibility?
     answer: "Because the cost is invisible. A patient who chooses a more findable competitor never contacts you, so there is no missed call or empty appointment to notice. Many doctors also assume referrals and a basic Google listing are enough, which is often no longer true."

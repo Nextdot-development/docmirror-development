@@ -7,8 +7,8 @@ category: Practice Growth
 image: /images/resources/How-Doctors-Can-Ethically.jpeg
 imageAlt: How Doctors Can Ethically
 tags: [Practice Growth, Patient Reviews, Reputation Management, Google Visibility]
-seoTitle: "How Doctors Ethically Get More Google Reviews | The Doc Mirror"
-metaDescription: "How US doctors can earn more genuine Google reviews without breaking Google or FTC rules: when to ask, HIPAA-safe requests, and why volume matters."
+seoTitle: "The Right Way to Get More Google Reviews as a Doctor"
+metaDescription: "Learn how US doctors can earn more genuine Google reviews without breaking Google or FTC rules: when to ask, HIPAA-safe requests, and why volume matters."
 faq:
   - question: Can I offer patients a discount for leaving a Google review?
     answer: "No. Offering anything of value in exchange for a review violates Google's content policy and the FTC's 2024 rule against incentivized reviews. Google filters these reviews, and the FTC can seek civil penalties of up to $51,744 per violation. Ask for honest reviews with no incentive attached."

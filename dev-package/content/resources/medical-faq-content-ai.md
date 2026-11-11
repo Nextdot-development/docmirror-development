@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/10-medical-faq-content-ai.jpeg
 imageAlt: 10 medical faq content ai
 tags: [AI Visibility, AEO, FAQ Schema, ChatGPT]
-seoTitle: "Write a Medical FAQ for AI That ChatGPT Quotes Directly | The Doc Mirror"
-metaDescription: "How to write a medical FAQ for AI so ChatGPT, Gemini, Claude, and Perplexity quote your answers directly, with real patient Q&As and FAQ schema inside."
+seoTitle: "Medical FAQ Content: How to Get Quoted by ChatGPT"
+metaDescription: "Learn how to write medical FAQ content that ChatGPT, Gemini, Claude, and Perplexity quote directly, with real patient Q&As and the FAQ schema that supports it."
 faq:
   - question: How many FAQs should a clinic page have?
     answer: "Aim for 8 to 15 genuine questions per key service, not a token 3. Each should target a distinct worry a real patient raised, from cost and pain to recovery time and preparation. More helps only when the questions are real and the answers stay self-contained. A dermatologist might cover acne, moles, insurance, and first-visit questions as separate pairs."

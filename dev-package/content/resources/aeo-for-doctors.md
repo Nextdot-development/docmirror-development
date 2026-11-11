@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/Aeo-for-doctors.jpeg
 imageAlt: Aeo-for-doctors.
 tags: [AI Visibility, AEO, Answer Engine Optimization, ChatGPT]
-seoTitle: "AEO for Doctors: How to Get Featured in AI Answer Engines | The Doc Mirror"
-metaDescription: "AEO for doctors explained. Learn the content structures that make your medical answers extractable and citable by ChatGPT, Gemini, Claude, and Perplexity."
+seoTitle: "AEO for Doctors: Get Quoted Inside AI Answers"
+metaDescription: "Learn how Answer Engine Optimization helps your medical content get extracted and cited by ChatGPT, Gemini, Claude, and Perplexity. See the structures that work."
 faq:
   - question: What does AEO stand for and how is it different from SEO?
     answer: "AEO stands for Answer Engine Optimization, the practice of structuring content so AI answer engines can extract and quote it accurately. SEO aims to rank your page in a list of links. AEO aims to get your specific words included inside a single generated answer from ChatGPT, Gemini, Claude, or Perplexity. You do both together, because AEO adds a structural layer on top of well-ranked content."

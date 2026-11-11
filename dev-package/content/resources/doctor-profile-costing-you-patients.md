@@ -7,8 +7,8 @@ category: Visibility Basics
 image: /images/resources/Is-Your-Doctor-Profile-Costing-You-Patients.jpeg
 imageAlt: Is Your Doctor Profile Costing You Patients.
 tags: [Visibility Basics, Google Business Profile, Patient Reviews, Patient Acquisition]
-seoTitle: "Is Your Doctor Profile Costing You Patients? | The Doc Mirror"
-metaDescription: "A profile teardown of the exact elements that silently lose bookings: Google Business Profile, reviews, photos, and website signals, with how to check each one."
+seoTitle: "Is Your Doctor Profile Costing You Patients? Find Out"
+metaDescription: "See a teardown of the exact profile elements that silently lose bookings: Google Business Profile, reviews, photos, and website signals, and how to fix them."
 faq:
   - question: Is my doctor profile really costing me patients?
     answer: "If any surface is incomplete or weaker than nearby competitors, almost certainly. A patient who sees a more complete, better-reviewed profile books with that practice and never contacts you. The loss is real but silent, which is why it goes unnoticed for months."

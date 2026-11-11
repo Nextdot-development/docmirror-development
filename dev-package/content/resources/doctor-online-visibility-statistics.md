@@ -7,8 +7,8 @@ category: Visibility Basics
 image: /images/resources/doctor-online-visibility-stats.jpeg
 imageAlt: doctor online visibility stats
 tags: [Visibility Basics, Statistics, Patient Research, AI Visibility]
-seoTitle: "Doctor Online Visibility Statistics Every Practice Needs | The Doc Mirror"
-metaDescription: "The online visibility statistics that predict whether patients find and choose your practice, each with a verified source, and how to check your own numbers."
+seoTitle: "Doctor Online Visibility: Statistics Every Practice Needs"
+metaDescription: "Check the online visibility statistics that predict whether patients find and choose your practice, each with a verified source, and compare your own numbers."
 faq:
   - question: What is the most important online visibility statistic for a doctor?
     answer: "The one measured against your local competitors, not a national average. Your review count and rating compared to the two or three practices shown beside you in the Google local pack predicts patient choice more directly than any single industry figure."
