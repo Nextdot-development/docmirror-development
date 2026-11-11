@@ -27,7 +27,7 @@ const { marked } = require('marked');
 const { stripInternalLinks } = require('./strip-internal-links');
 
 const RESOURCES_DIR = path.join(__dirname, '..', 'content', 'resources');
-const SITE = 'https://www.thedocmirror.com';
+const SITE = 'https://thedocmirror.com';
 
 // GitHub-flavoured Markdown: tables, task lists, autolinks, etc.
 marked.setOptions({ gfm: true, breaks: false, mangle: false, headerIds: true });

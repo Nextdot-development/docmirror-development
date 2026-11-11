@@ -13,9 +13,9 @@
   "routes": [
     {
       "src": "/(.*)",
-      "has": [{ "type": "host", "value": "thedocmirror.com" }],
+      "has": [{ "type": "host", "value": "www.thedocmirror.com" }],
       "status": 301,
-      "headers": { "Location": "https://www.thedocmirror.com/$1" }
+      "headers": { "Location": "https://thedocmirror.com/$1" }
     },
     { "src": "/(.*)", "dest": "dev-package/server.js" }
   ]

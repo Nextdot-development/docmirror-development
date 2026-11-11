@@ -344,7 +344,7 @@ function importer() {
     '## Related',
     '',
     '- [GEO for doctors](/resources/geo-for-doctors)',
-    '- https://www.thedocmirror.com/resources/medical-schema-markup-ai',
+    '- https://thedocmirror.com/resources/medical-schema-markup-ai',
   ].join('\n');
   const f = parseMarkdownImport(md, {}).fields;
 

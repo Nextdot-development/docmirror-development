@@ -73,7 +73,7 @@ async function main() {
       console.log('   ' + e.priority + '  ' + (e.lastmod || '----------') + '  ' + e.loc);
     }
     console.log('\n  This copy is for reading only — nothing serves it.');
-    console.log('  Live URL: https://www.thedocmirror.com/sitemap.xml (built per request)');
+    console.log('  Live URL: https://thedocmirror.com/sitemap.xml (built per request)');
     console.log('  Submit that URL in Google Search Console, not this file.\n');
   } catch (err) {
     console.error('\n  Failed to write the sitemap preview:', err.message, '\n');

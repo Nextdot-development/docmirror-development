@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 const { resourceSitemapEntries } = require('./resources');
 
-const SITE = 'https://www.thedocmirror.com';
+const SITE = 'https://thedocmirror.com';
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 // Only canonical, indexable, 200-returning URLs belong here. Deliberately

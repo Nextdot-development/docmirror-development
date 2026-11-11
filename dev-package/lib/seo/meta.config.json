@@ -1,11 +1,11 @@
 {
   "_readme": "SINGLE SOURCE OF TRUTH for marketing meta. title = <=60 char (Google truncation). ogTitle = longer social/LLM version. NEVER swap them. Only the `home` entry is emitted to a real document today; the anchor entries (#tool, #pricing, #faq, ...) live here ready for a future route conversion — anchors currently inherit the homepage meta, which is correct. Validate with: node lib/seo/check-meta.js",
   "site": {
-    "canonicalHost": "https://www.thedocmirror.com",
+    "canonicalHost": "https://thedocmirror.com",
     "siteName": "The Doc Mirror",
     "legalEntity": "NEXTDOT DIGITAL SOLUTIONS PRIVATE LIMITED",
     "twitterCard": "summary_large_image",
-    "ogImage": "https://www.thedocmirror.com/assets/logo/og-image.png",
+    "ogImage": "https://thedocmirror.com/assets/logo/og-image.png",
     "ogImageWidth": 1200,
     "ogImageHeight": 630,
     "locale": "en_US"

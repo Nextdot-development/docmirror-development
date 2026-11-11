@@ -14,4 +14,4 @@ Disallow: /pdf-report-template.html
 # redirects to a clean canonical URL or carry their own noindex tag, and
 # blocking them here would stop Google from ever reading that noindex.
 
-Sitemap: https://www.thedocmirror.com/sitemap.xml
+Sitemap: https://thedocmirror.com/sitemap.xml

@@ -103,12 +103,12 @@ group('3. admin/posts buildFields — SEO overrides, timezone, content_blocks');
 
 const draft = buildFields({
   title: 'A Draft', content_md: '# Heading\n\nSome text.',
-  canonical_url: 'https://www.thedocmirror.com/resources/a-draft',
+  canonical_url: 'https://thedocmirror.com/resources/a-draft',
   og_image: 'javascript:alert(1)',
   twitter_image: '/images/tw.png',
   timezone: 'Asia/Kolkata',
 });
-check('a safe canonical_url override survives', draft.fields.canonical_url === 'https://www.thedocmirror.com/resources/a-draft');
+check('a safe canonical_url override survives', draft.fields.canonical_url === 'https://thedocmirror.com/resources/a-draft');
 check('an unsafe og_image (javascript:) is dropped to null, same allowlist as every other URL field', draft.fields.og_image === null);
 check('a safe twitter_image override survives', draft.fields.twitter_image === '/images/tw.png');
 check('a valid IANA timezone is kept', draft.fields.time_zone === 'Asia/Kolkata');

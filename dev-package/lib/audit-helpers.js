@@ -387,10 +387,10 @@ function buildUpsellPlaceholders(currencyOverride, doctorRegion) {
   const qsOrg    = '?region=' + pricingRegion;
   return {
     '{{MONITOR_PRICE_DISPLAY}}':  monitor.displayPrice,
-    '{{MONITOR_CHECKOUT_URL}}':   'https://www.thedocmirror.com/pages/checkout-subscription.html' + qs,
+    '{{MONITOR_CHECKOUT_URL}}':   'https://thedocmirror.com/pages/checkout-subscription.html' + qs,
     '{{ORG_PRICE_DISPLAY}}':      org.displayPrice,
     '{{ORG_PROFILE_LIMIT}}':      String(org.profileLimit || 10),
-    '{{ORG_CHECKOUT_URL}}':       'https://www.thedocmirror.com/pages/agency-signup.html' + qsOrg,
+    '{{ORG_CHECKOUT_URL}}':       'https://thedocmirror.com/pages/agency-signup.html' + qsOrg,
   };
 }
 
