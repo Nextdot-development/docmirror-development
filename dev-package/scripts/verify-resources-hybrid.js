@@ -286,10 +286,10 @@ function checkSeo() {
   check('meta description uses meta_description',
     /<meta name="description" content="Fixture meta description\.">/.test(html));
   check('canonical is the real Doc Mirror Resources URL',
-    html.includes('<link rel="canonical" href="https://www.thedocmirror.com/resources/cms-seo">'));
+    html.includes('<link rel="canonical" href="https://thedocmirror.com/resources/cms-seo">'));
   check('canonical never uses nextdot.co.in', !/nextdot\.co\.in/.test(html));
   check('og:url matches the canonical',
-    html.includes('<meta property="og:url" content="https://www.thedocmirror.com/resources/cms-seo">'));
+    html.includes('<meta property="og:url" content="https://thedocmirror.com/resources/cms-seo">'));
   check('og:image is the absolute Storage URL',
     /<meta property="og:image" content="https:\/\/[^"]*blog-media[^"]*">/.test(html));
   check('all Open Graph tags present',
@@ -302,7 +302,7 @@ function checkSeo() {
   const article = (ld(html)['@graph'] || []).find((n) => n['@type'] === 'BlogPosting');
   check('BlogPosting carries the publish date', !!article && !!article.datePublished);
   check('BlogPosting mainEntityOfPage is the canonical',
-    article.mainEntityOfPage === 'https://www.thedocmirror.com/resources/cms-seo');
+    article.mainEntityOfPage === 'https://thedocmirror.com/resources/cms-seo');
   check('BlogPosting author is the CMS author',
     article.author && article.author.name === 'The Doc Mirror Team');
 }
@@ -386,7 +386,7 @@ function checkSitemap() {
   check('the CMS lastmod is the publish date',
     /<loc>[^<]*cms-live<\/loc>\s*<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(xml));
   check('the static pages are still listed',
-    xml.includes('<loc>https://www.thedocmirror.com/</loc>') && xml.includes('/pricing'));
+    xml.includes('<loc>https://thedocmirror.com/</loc>') && xml.includes('/pricing'));
   check('no /admin URL', !/\/admin/.test(xml));
 
   db._reset();

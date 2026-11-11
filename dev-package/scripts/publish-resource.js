@@ -201,7 +201,7 @@ function publishResource(mdPathArg, imgPathArg, opts = {}) {
     outPath,
     webImage: fm.image,
     diskImage: path.join(ROOT, 'public', fm.image.replace(/^\//, '')),
-    url: `https://www.thedocmirror.com/resources/${slug}`,
+    url: `https://thedocmirror.com/resources/${slug}`,
     consumed,           // source files that were used (for /imports cleanup)
     sourceMd: mdPath,
   };

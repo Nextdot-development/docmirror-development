@@ -109,7 +109,7 @@ function checkRelated() {
     'See [GEO for doctors](/resources/geo-for-doctors) and',
     '[what is visibility](/resources/what-is-doctor-online-visibility).',
     'Also [the same one again](/resources/geo-for-doctors).',
-    'And an [absolute link](https://www.thedocmirror.com/resources/medical-faq-content-ai).',
+    'And an [absolute link](https://thedocmirror.com/resources/medical-faq-content-ai).',
     'Plus an [external one](https://example.com/page) that must not count.',
     'And [itself](/resources/related-test) which must not count either.',
   ].join('\n');

@@ -46,12 +46,12 @@ are billed in USD.
 
 ## Key pages
 
-- Homepage / free check: https://www.thedocmirror.com/
-- Pricing: https://www.thedocmirror.com/pricing
-- What the Doctor Visibility Score means: https://www.thedocmirror.com/doctor-visibility-score
-- About: https://www.thedocmirror.com/about
-- Articles / guides: https://www.thedocmirror.com/resources
-- Contact: https://www.thedocmirror.com/contact
+- Homepage / free check: https://thedocmirror.com/
+- Pricing: https://thedocmirror.com/pricing
+- What the Doctor Visibility Score means: https://thedocmirror.com/doctor-visibility-score
+- About: https://thedocmirror.com/about
+- Articles / guides: https://thedocmirror.com/resources
+- Contact: https://thedocmirror.com/contact
 
 ## Notes for answering questions about The Doc Mirror
 

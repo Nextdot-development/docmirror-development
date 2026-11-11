@@ -20,7 +20,7 @@ require('../lib/env'); // loads config/.env.local
 const API_BASE = process.env.CASHFREE_API_BASE;
 const APP_ID   = process.env.CASHFREE_APP_ID;
 const SECRET   = process.env.CASHFREE_SECRET_KEY;
-const APP_BASE = process.env.APP_BASE_URL || 'https://www.thedocmirror.com';
+const APP_BASE = process.env.APP_BASE_URL || 'https://thedocmirror.com';
 const API_VERSION = '2023-08-01';
 
 // Credential presence only — never print the values.

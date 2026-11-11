@@ -741,7 +741,7 @@ async function resolveRelated(req, res) {
   let raw = String(req.query.value || '').trim();
   if (!raw) return res.status(400).json({ error: 'Paste a URL or a slug.' });
 
-  // https://www.thedocmirror.com/resources/foo  ·  /resources/foo  ·  foo
+  // https://thedocmirror.com/resources/foo  ·  /resources/foo  ·  foo
   raw = raw.replace(/[?#].*$/, '').replace(/\/+$/, '');
   const tail = raw.split('/').filter(Boolean).pop() || '';
   const slug = slugify(tail);
