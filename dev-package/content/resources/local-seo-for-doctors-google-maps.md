@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/Local-SEO-for-Doctors.jpeg
 imageAlt: Local SEO for Doctors.
 tags: [Google Visibility, Local SEO, Google Maps, Google Business Profile]
-seoTitle: "Local SEO for Doctors: Rank Higher on Google Maps | The Doc Mirror"
-metaDescription: "A step-by-step local SEO playbook for doctors: verify your profile, pick the right category, earn reviews, fix citations, and climb the Google Maps local pack."
+seoTitle: "Local SEO for Doctors: Rank Higher on Google Maps"
+metaDescription: "Follow this step-by-step local SEO playbook for doctors: verify your profile, pick the right category, earn reviews, fix citations, and climb the local pack."
 faq:
   - question: What is local SEO for doctors?
     answer: "Local SEO for doctors is the work of improving how your practice appears in location-based searches like 'dermatologist near me.' The main goal is ranking in the local pack, the three Google Maps listings shown first, by improving your Google Business Profile, reviews, and consistency, since these are the relevance and prominence signals Google ranks on."

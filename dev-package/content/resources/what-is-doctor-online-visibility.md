@@ -7,8 +7,8 @@ category: Visibility Basics
 image: /images/resources/what-is-doctor-online-visibility.png
 imageAlt: "See how patients find you online — a doctor's visibility score across Google, AI assistants, and directories"
 tags: [Online Visibility, Google, AI Visibility, Directories]
-seoTitle: "What Is Doctor Online Visibility? A Beginner's Guide | The Doc Mirror"
-metaDescription: Doctor online visibility is how easily patients and AI assistants find you when they search. Here is what it means and how to measure yours.
+seoTitle: "What Is Doctor Online Visibility? A Beginner's Guide"
+metaDescription: "Learn what doctor online visibility means: how easily patients and AI assistants find you when they search, and how to measure yours today."
 faq:
   - question: What is doctor online visibility?
     answer: Doctor online visibility is how easily patients and AI assistants find and choose you when they search for care. It combines your Google Business Profile, reviews, rating, photos, directory listings, local search rank, and whether AI assistants name your practice.

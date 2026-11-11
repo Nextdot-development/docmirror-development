@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/Why-Isn't-Your-Medical.jpeg
 imageAlt: Why Isn't Your Medical.
 tags: [Google Visibility, Local SEO, Google Business Profile, Patient Reviews]
-seoTitle: "Why Isn't Your Medical Practice Ranking on Google? | The Doc Mirror"
-metaDescription: "7 common reasons a medical practice does not rank on Google, from an unverified profile to thin reviews, each with how to check and fix it."
+seoTitle: "7 Reasons Your Medical Practice Isn't Ranking on Google"
+metaDescription: "Discover 7 common reasons a medical practice doesn't rank on Google, from an unverified profile to thin reviews, with how to check and fix each one."
 faq:
   - question: Why isn't my medical practice ranking on Google?
     answer: "The most common reasons are an unverified or incomplete Google Business Profile, a wrong or too-broad primary category, inconsistent name, address, and phone details, too few reviews, no recent photos, and weak website signals. Google Business Profile signals and reviews together drive more than half of local ranking weight, and most of both is in your control."

@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/doctors-outrank.jpeg
 imageAlt: doctors outrank
 tags: [Google Visibility, Local SEO, Competitor Analysis, Patient Reviews]
-seoTitle: "Why Your Competitor Doctor Outranks You on Google | The Doc Mirror"
-metaDescription: "Your competitor outranks you on specific, fixable signals: category, reviews, profile completeness, and consistency. Here is each gap and how to close it."
+seoTitle: "What Makes a Competitor Doctor Outrank You on Google"
+metaDescription: "See the specific, fixable signals behind why a competitor outranks you on Google: category, reviews, profile completeness, and how to close each gap."
 faq:
   - question: Why does my competitor rank higher on Google when I am the better doctor?
     answer: "Google does not measure clinical skill. It ranks on relevance, distance, and prominence, which come down to category precision, reviews, profile completeness, and consistency of your details across the web. Your competitor is winning on one or more of those signals, and every one except distance is fixable."

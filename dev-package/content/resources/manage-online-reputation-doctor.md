@@ -7,8 +7,8 @@ category: Practice Growth
 image: /images/resources/How-to-Manage-Your-Online-Reputation-as-a-Doctor.jpeg
 imageAlt: How to Manage Your Online Reputation as a Doctor
 tags: [Practice Growth, Reputation Management, Patient Reviews, Google Visibility]
-seoTitle: "How to Manage Your Online Reputation as a Doctor | The Doc Mirror"
-metaDescription: "A practical guide for US doctors to monitor, respond, and stay HIPAA and FTC compliant across Google, Healthgrades, Zocdoc, and Vitals."
+seoTitle: "A Doctor's Practical Guide to Managing Your Reputation"
+metaDescription: "Get a practical guide for US doctors to monitor, respond to, and stay HIPAA and FTC compliant across Google, Healthgrades, Zocdoc, and Vitals reviews."
 faq:
   - question: How do I respond to a negative patient review without violating HIPAA?
     answer: "Do not confirm the person was your patient or mention any clinical detail. Acknowledge the feedback in general terms, stay professional, and invite them to continue offline by calling your office. In 2023, OCR fined a practice $30,000 for disclosing patient information in review responses, so a care relationship must never be confirmed publicly, even if the reviewer disclosed it first."

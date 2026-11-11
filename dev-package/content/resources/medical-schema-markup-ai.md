@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/medical-schema-markup-for-ai-visibility.jpeg
 imageAlt: medical-schema-markup-for-ai-visibility
 tags: [AI Visibility, Schema Markup, Structured Data, AEO]
-seoTitle: "Medical Schema Markup for AI Visibility: Doctor Setup | The Doc Mirror"
-metaDescription: "Medical schema markup helps AI assistants read your practice without guessing. A step-by-step setup and testing guide for doctors in the US and India."
+seoTitle: "Medical Schema Markup: A Setup Guide for AI Visibility"
+metaDescription: "Discover how medical schema markup helps AI assistants read your practice correctly. Follow this step-by-step setup and testing guide built for doctors."
 faq:
   - question: Is medical schema markup required for AI assistants to find me?
     answer: "No. Google states there is no special markup required to appear in AI features, and the same holds broadly for AI assistants. Schema does not unlock visibility on its own. What it does is remove ambiguity, so that when ChatGPT, Gemini, Claude, or Perplexity read your site, your specialty, location, and services are stated as clean data rather than inferred from prose. It is hygiene that reduces the chance of being misread or skipped, not a guarantee of being recommended."

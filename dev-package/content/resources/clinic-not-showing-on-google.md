@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/why-your-clinic.png
 imageAlt: "Why Your Clinic Doesn't Show Up in \"Doctor Near Me\""
 tags: [Google Visibility, Local Search, Google Business Profile, AI Visibility]
-seoTitle: "Why Your Clinic Doesn't Show Up in \"Doctor Near Me\" | The Doc Mirror"
-metaDescription: If your clinic is not showing on Google when patients search nearby, here are the real reasons and how to check each one this week.
+seoTitle: "Why Your Clinic Doesn't Show Up on Google Search"
+metaDescription: "If your clinic isn't showing up when patients search nearby, see the real reasons it happens and how to check and fix each one this week."
 faq:
   - question: Why is my clinic not showing up on Google?
     answer: "The usual reasons are a missing or unverified Google Business Profile, an incomplete profile, inconsistent name, address, and phone details across the web, or competitors with more reviews and completeness out-ranking you. Each cause can be confirmed by checking your profile and comparing your listings."

@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/chatgpt-doesnt-mention-your-clinic.png
 imageAlt: "Why ChatGPT and AI search engines don't mention your clinic — the three signals AI assistants use: directory citation depth, schema markup, and consistent NAP"
 tags: [ChatGPT, AI Visibility, Directories, Schema]
-seoTitle: "Why ChatGPT Doesn't Recommend Your Clinic (and the Fix) | The Doc Mirror"
-metaDescription: ChatGPT, Gemini, and Perplexity now recommend doctors to patients. Here is why your practice is missing from those answers and what to fix first.
+seoTitle: "Why ChatGPT Doesn't Mention Your Clinic (and the Fix)"
+metaDescription: "Find out why ChatGPT, Gemini, and Perplexity recommend other doctors instead of you, and the fixes that get your practice included in those AI answers."
 faq:
   - question: Does ChatGPT use Google to find doctors?
     answer: No. ChatGPT pulls from its training data, live web retrieval, and a small set of sources it treats as authoritative. You can rank on page one of Google and still be absent from a ChatGPT answer, because the two systems weigh different signals.

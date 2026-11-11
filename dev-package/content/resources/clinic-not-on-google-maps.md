@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/Clinic-Not-on-Google-Maps.jpeg
 imageAlt: Clinic Not on Google Maps.
 tags: [Google Visibility, Google Business Profile, Local SEO, Google Maps]
-seoTitle: "Clinic Not on Google Maps? Causes and Fixes | The Doc Mirror"
-metaDescription: "Why your clinic is missing from Google Maps: unverified, duplicate, or suspended listings, pin and service-area errors, and how to reinstate a profile."
+seoTitle: "Clinic Not on Google Maps? Causes and How to Fix It"
+metaDescription: "Find out why your clinic is missing from Google Maps: unverified, duplicate, or suspended listings, pin errors, and how to reinstate your profile."
 faq:
   - question: Why is my clinic not on Google Maps at all?
     answer: "The most common technical causes are an unverified profile, a profile that was never created, duplicate listings, a suspension, or a location or business-type setting error. Search your exact clinic name in Maps first to tell whether the listing is missing, unverified, or blocked."

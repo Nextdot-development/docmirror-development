@@ -7,8 +7,8 @@ category: AI Visibility
 image: /images/resources/What-Is-GEO.jpeg
 imageAlt: What Is GEO.
 tags: [AI Visibility, GEO, ChatGPT, Generative Engine Optimization]
-seoTitle: "What Is GEO (Generative Engine Optimization) for Doctors? | The Doc Mirror"
-metaDescription: "GEO is building your practice's authority so AI assistants recommend you. Here is how it differs from SEO and AEO, and what a doctor should do first."
+seoTitle: "GEO for Doctors: Build the Authority AI Assistants Trust"
+metaDescription: "Discover what Generative Engine Optimization means for doctors, how it differs from SEO and AEO, and the first step to get AI assistants to recommend you."
 faq:
   - question: What is GEO for doctors?
     answer: "GEO, or Generative Engine Optimization, is building your practice's online authority so AI assistants like ChatGPT, Gemini, Claude, and Perplexity recognize and recommend you when a patient asks for a doctor. It focuses on entity recognition and trust across the web, not on ranking a single web page. The term was coined in a 2023 academic paper that measured how content choices change AI citations."

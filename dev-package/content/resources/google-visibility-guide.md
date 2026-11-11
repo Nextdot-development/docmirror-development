@@ -7,8 +7,8 @@ category: Google Visibility
 image: /images/resources/google-visibility-guide.jpeg
 imageAlt: Google visibility guide for doctors
 tags: [Google, Local SEO, Maps]
-seoTitle: Google Visibility for Doctors — Search & Maps Guide | The Doc Mirror
-metaDescription: How Google Search and Maps affect patient discovery for your practice, and the concrete profile signals that improve your local ranking.
+seoTitle: "Google Visibility for Doctors: Search and Maps Guide"
+metaDescription: "Understand how Google Search and Google Maps decide which doctors patients discover, and the concrete profile signals that move your practice up."
 faq:
   - question: What is the difference between Google Search and the Google local pack?
     answer: Google Search is the classic list of blue links — your website, directory profiles, and articles that mention you. The local pack is the map with three highlighted businesses that appears for searches like "dentist near me," and it is driven mainly by your Google Business Profile, reviews, and proximity to the searcher.

@@ -7,8 +7,8 @@ category: Product
 image: /images/resources/Whats-Inside-a-Doctor.jpeg
 imageAlt: "What's Inside a Doctor Visibility Report? A Full Breakdown"
 tags: [Product, Visibility Report, Doctor Visibility Score, AI Visibility]
-seoTitle: "What's Inside a Doctor Visibility Report? Full Breakdown | The Doc Mirror"
-metaDescription: "A page-by-page breakdown of The Doc Mirror Full Report: 7 pillars, AI visibility scores, patient loss estimate, competitor leaderboard, and a 90-day plan."
+seoTitle: "What's Inside a Doctor Visibility Report? Full Breakdown"
+metaDescription: "See a page-by-page breakdown of the Doc Mirror Full Report: 7 pillars, AI visibility scores, patient loss estimate, competitor leaderboard, and a 90-day plan."
 faq:
   - question: How long is the Full Report?
     answer: "It is a 15-page PDF. It is generated from your own audit data and nine Claude prompts, and emailed within about 60 seconds of payment."
