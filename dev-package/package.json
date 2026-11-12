@@ -20,7 +20,8 @@
     "vercel-build": "echo 'Static + serverless — no build step'",
     "check-meta": "node lib/seo/check-meta.js",
     "verify-cms": "node scripts/verify-blog-cms.js",
-    "verify-spec-parity": "node scripts/verify-blog-spec-parity.js"
+    "verify-spec-parity": "node scripts/verify-blog-spec-parity.js",
+    "verify-security": "node scripts/verify-security-headers.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",

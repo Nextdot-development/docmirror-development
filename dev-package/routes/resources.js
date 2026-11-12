@@ -12,6 +12,9 @@
    All content comes from lib/resources.js (Markdown in dev-package/resources/).
    ────────────────────────────────────────────────────────────────────────── */
 
+const fs   = require('fs');
+const path = require('path');
+
 const {
   SITE,
   escapeHtml,
@@ -147,7 +150,7 @@ function absUrl(src) {
 // Full HTML document shell — head SEO + Doc Mirror header/footer mounts.
 // twitterImage defaults to ogImage when not given, so every existing caller
 // (which never passes it) renders byte-for-byte what it always has.
-function renderShell({ title, description, canonical, ogType, ogImage, twitterImage, jsonLd, body }) {
+function renderShell({ title, description, canonical, ogType, ogImage, twitterImage, jsonLd, body, preload = '' }) {
   const twImage = twitterImage || ogImage;
   return `<!DOCTYPE html>
 <html lang="en">
@@ -173,14 +176,24 @@ function renderShell({ title, description, canonical, ogType, ogImage, twitterIm
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
 <meta name="twitter:image" content="${escapeHtml(twImage)}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+${preload}<link rel="preload" href="/assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Self-hosted Google Fonts: the same woff2 files, weights, unicode-ranges and font-display:swap that fonts.googleapis.com served; removes the render-blocking cross-origin stylesheet. */
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/dm-sans-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/dm-sans-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/dm-sans-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/dm-sans-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/dm-sans-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+</style>
 <script type="application/ld+json">${jsonLd}</script>
 <style>${PAGE_CSS}</style>
 ${GTAG}
 </head>
 <body>
-<div id="dm-header"></div>
+<div id="dm-header" style="min-height:60px"></div>
 <main>
 ${body}
 </main>
@@ -207,16 +220,59 @@ window.dmImgFallback=function(img){
 
 // ── card + placeholder helpers ─────────────────────────────────────────────
 
+// Responsive WebP variants for the bundled resource images. For every
+// public/images/resources/<name>.(png|jpe?g) the repo also carries
+// <name>.webp (1200px wide), <name>-960.webp and <name>-640.webp, generated from
+// the original. The original stays the <img src> (and the og:image), the
+// variants go in srcset, so a browser picks a ~60-90 KB WebP instead of a
+// 1.4-1.8 MB PNG. CMS images (Supabase storage URLs) have no variants and
+// render exactly as before. The directory is read once per cold start.
+const RES_IMG_URL = '/images/resources/';
+const RES_IMG_DIR = path.join(__dirname, '..', 'public', 'images', 'resources');
+let _resImgFiles = null;
+function webpSrcset(src) {
+  if (typeof src !== 'string' || !src.startsWith(RES_IMG_URL)) return '';
+  const file = src.slice(RES_IMG_URL.length);
+  if (!file || /[\s,]/.test(file)) return '';            // srcset can't carry these
+  const base = file.replace(/\.(png|jpe?g)$/i, '');
+  if (base === file) return '';
+  if (!_resImgFiles) {
+    try { _resImgFiles = new Set(fs.readdirSync(RES_IMG_DIR)); } catch (_) { _resImgFiles = new Set(); }
+  }
+  const w1200 = `${base}.webp`, w960 = `${base}-960.webp`, w640 = `${base}-640.webp`;
+  if (!_resImgFiles.has(w1200) || !_resImgFiles.has(w960) || !_resImgFiles.has(w640)) return '';
+  return `${RES_IMG_URL}${w640} 640w, ${RES_IMG_URL}${w960} 960w, ${RES_IMG_URL}${w1200} 1200w`;
+}
+// Rendered width of each image slot (main is max 900px wide; the grid is
+// 3 / 2 / 1 columns; the featured card shows the image in roughly half).
+const IMG_SIZES = {
+  'res-hero':           '(max-width: 932px) calc(100vw - 2rem), 900px',
+  'res-featured-media': '(max-width: 768px) calc(100vw - 4.7rem), 45vw',
+  'res-card-media':     '(max-width: 640px) calc(100vw - 2rem), (max-width: 980px) 50vw, 290px',
+};
+
 // Fixed 16:9 image wrapper (Nextdot-style): the <img> uses object-fit:contain
 // inside a dark #061b2f box, so the full image is always shown — never cropped.
 function cardMedia(post, cls, { eager = false } = {}) {
   const ph = `${cls} ${cls}--ph`;
   if (post.image) {
+    const srcset = webpSrcset(post.image);
+    const responsive = srcset ? ` srcset="${escapeHtml(srcset)}" sizes="${IMG_SIZES[cls] || '100vw'}"` : '';
     // If the image ever fails to load, dmImgFallback swaps the wrapper for the
     // branded placeholder so a broken image can never show a blank/broken icon.
-    return `<div class="${cls}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.imageAlt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} width="1200" height="675" data-ph="${ph}" data-label="${escapeHtml(post.title)}" onerror="dmImgFallback(this)"></div>`;
+    return `<div class="${cls}"><img src="${escapeHtml(post.image)}"${responsive} alt="${escapeHtml(post.imageAlt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} width="1200" height="675" data-ph="${ph}" data-label="${escapeHtml(post.title)}" onerror="dmImgFallback(this)"></div>`;
   }
   return `<div class="${ph}"><span>${escapeHtml(post.title)}</span></div>`;
+}
+
+// <link rel=preload> for the article hero (the page's LCP element) so the
+// browser requests it from the <head> instead of after parsing the body.
+function heroPreload(post) {
+  if (!post.image) return '';
+  const srcset = webpSrcset(post.image);
+  const responsive = srcset ? ` imagesrcset="${escapeHtml(srcset)}" imagesizes="${IMG_SIZES['res-hero']}"` : '';
+  return `<link rel="preload" as="image" href="${escapeHtml(post.image)}"${responsive} fetchpriority="high">
+`;
 }
 
 function metaBits(post) {
@@ -442,6 +498,7 @@ ${relatedBlock}
     twitterImage,
     jsonLd,
     body,
+    preload: heroPreload(post),
   });
 }
 
