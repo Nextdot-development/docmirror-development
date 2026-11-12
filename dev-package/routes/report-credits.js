@@ -130,7 +130,7 @@ async function redeem(req, res) {
     ok: true,
     generating: true,
     reportId: auditId,
-    message: 'Generating your report — it will appear below shortly.',
+    message: 'Generating your report - it will appear below shortly.',
   });
 }
 

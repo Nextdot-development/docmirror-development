@@ -8,7 +8,7 @@ image: /images/resources/How-to-Rank-Your-Medical-Practice.jpeg
 imageAlt: How-to-Rank-Your-Medical-Practice
 tags: [AI Visibility, Google Gemini, AI Search, Google Business Profile]
 seoTitle: "Rank Your Medical Practice in Google Gemini AI Search"
-metaDescription: "Learn how to rank your medical practice in Google Gemini AI search. Gemini names doctors from Google's own data — see the steps in under 2 hours a week."
+metaDescription: "Learn how to rank your medical practice in Google Gemini AI search. Gemini names doctors from Google's own data - see the steps in under 2 hours a week."
 faq:
   - question: How do I get my practice to appear in Google Gemini?
     answer: "Complete and verify your Google Business Profile, set a specific primary category, keep your name, address, and phone consistent across the web, earn genuine reviews, and add schema markup to your website. Gemini draws on Google's own data, so a complete, verified profile matters most."

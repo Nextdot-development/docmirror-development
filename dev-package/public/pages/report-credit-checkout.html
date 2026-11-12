@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0A2540">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buy a Report Credit — The Doc Mirror</title>
+<title>Buy a Report Credit - The Doc Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -79,7 +79,7 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:2
         <div class="price-note">One-time · No subscription</div>
       </div>
       <div style="text-align:right">
-        <div class="price-amount"><span data-price="report">—</span></div>
+        <div class="price-amount"><span data-price="report">-</span></div>
         <div class="price-note">Redeem for any doctor, any time</div>
       </div>
     </div>
@@ -101,10 +101,10 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:2
     </div>
 
     <div id="logged-in-block" style="display:none">
-      <div class="session-note" id="session-note">Signed in as —</div>
+      <div class="session-note" id="session-note">Signed in as -</div>
       <button class="pay-btn" id="pay-btn" type="button" onclick="startPayment()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        Buy report — <span data-price="report">—</span>
+        Buy report - <span data-price="report">-</span>
       </button>
       <div class="field-err" id="pay-err"></div>
     </div>
@@ -159,7 +159,7 @@ async function signupAndBuy() {
     }).then(function(r){ return r.json().then(function(b){ return { status: r.status, body: b }; }); });
 
     if (signupRes.status === 409) {
-      showFormErr('An account with this email already exists — click Log in above instead.');
+      showFormErr('An account with this email already exists - click Log in above instead.');
       btn.disabled = false; btn.textContent = 'Create account & buy report';
       return;
     }
@@ -175,7 +175,7 @@ async function signupAndBuy() {
     var s = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
     var signIn = await s.auth.signInWithPassword({ email: email, password: pass });
     if (signIn.error || !signIn.data.session) {
-      showFormErr('Account created — please use "Log in" above.');
+      showFormErr('Account created - please use "Log in" above.');
       btn.disabled = false; btn.textContent = 'Create account & buy report';
       return;
     }
@@ -217,7 +217,7 @@ function setPayReady() {
   btn.disabled = false;
   btn.innerHTML =
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
-    '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Buy report — <span data-price="report">—</span>';
+    '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Buy report - <span data-price="report">-</span>';
   if (window.TDMPricing && window.TDM_PRICING) window.TDMPricing.apply(window.TDM_PRICING.prices);
 }
 

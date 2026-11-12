@@ -5,7 +5,7 @@ date: 2026-07-10
 author: Ayush Prashar
 category: AI Visibility
 image: /images/resources/chatgpt-doesnt-mention-your-clinic.png
-imageAlt: "Why ChatGPT and AI search engines don't mention your clinic — the three signals AI assistants use: directory citation depth, schema markup, and consistent NAP"
+imageAlt: "Why ChatGPT and AI search engines don't mention your clinic - the three signals AI assistants use: directory citation depth, schema markup, and consistent NAP"
 tags: [ChatGPT, AI Visibility, Directories, Schema]
 seoTitle: "Why ChatGPT Doesn't Mention Your Clinic (and the Fix)"
 metaDescription: "Find out why ChatGPT, Gemini, and Perplexity recommend other doctors instead of you, and the fixes that get your practice included in those AI answers."

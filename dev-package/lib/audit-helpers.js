@@ -215,11 +215,11 @@ function buildCompetitorTableHtml(d) {
 <tr class="ct-you">
   <td class="ct-name">Dr. ${esc(nameClean)} <span style="font-size:8pt;background:#00A878;color:#fff;padding:1px 6px;border-radius:10px;font-weight:600;margin-left:4px">You</span></td>
   <td class="ct-score">${d.score || 0}/100</td>
-  <td>${d.rating ? Number(d.rating).toFixed(1) + '★' : '—'}</td>
+  <td>${d.rating ? Number(d.rating).toFixed(1) + '★' : '-'}</td>
   <td>${d.reviewCount || 0}</td>
-  <td>${d.photoCount || '—'}</td>
-  <td>—</td>
-  <td>—</td>
+  <td>${d.photoCount || '-'}</td>
+  <td>-</td>
+  <td>-</td>
 </tr>`;
 
   if (!competitors.length) {
@@ -229,12 +229,12 @@ function buildCompetitorTableHtml(d) {
   const compRows = competitors.map(c => `
 <tr>
   <td class="ct-name">${esc(c.name)}</td>
-  <td class="ct-score">${c.googleScore ? c.googleScore + '/100' : '—'}</td>
-  <td>${c.rating ? Number(c.rating).toFixed(1) + '★' : '—'}</td>
+  <td class="ct-score">${c.googleScore ? c.googleScore + '/100' : '-'}</td>
+  <td>${c.rating ? Number(c.rating).toFixed(1) + '★' : '-'}</td>
   <td>${c.reviewCount || 0}</td>
-  <td>—</td>
-  <td>—</td>
-  <td>—</td>
+  <td>-</td>
+  <td>-</td>
+  <td>-</td>
 </tr>`).join('');
 
   return youRow + compRows;
@@ -348,18 +348,18 @@ function buildSampleAlertHtml(d) {
   const lead       = Math.max(0, compReviews - myReviews);
   return `
 <p>Your score: <strong>${d.score || 0}/100</strong></p>
-<p><strong>${esc(compName)}</strong> has ${compReviews} reviews${lead > 0 ? ` — <strong class="alert-delta-down">${lead} ahead</strong> of you` : ''}.</p>
+<p><strong>${esc(compName)}</strong> has ${compReviews} reviews${lead > 0 ? ` - <strong class="alert-delta-down">${lead} ahead</strong> of you` : ''}.</p>
 <p>→ <strong>Suggested action this week:</strong> Ask your last 5 satisfied patients for a Google review.</p>`;
 }
 
 function buildMethodologySourcesHtml(d) {
   const r = regionDefaults(d.region || detectRegion(d.city || '', d.state || ''));
   return [
-    'Google Places API — Business profile, reviews, photos, hours',
-    'Google Text Search — Competitor discovery',
-    `AI Visibility — ${d.aiVisibility?.isReal ? 'Live queries: ChatGPT, Gemini, Claude, Perplexity' : 'Signal-based estimate (real queries on paid tier)'}`,
-    `Directory checks — ${r.primaryDirectories.join(', ')}`,
-    'Claude AI (Anthropic) — Narrative, fixes, action planning, keyword strategy',
+    'Google Places API - Business profile, reviews, photos, hours',
+    'Google Text Search - Competitor discovery',
+    `AI Visibility - ${d.aiVisibility?.isReal ? 'Live queries: ChatGPT, Gemini, Claude, Perplexity' : 'Signal-based estimate (real queries on paid tier)'}`,
+    `Directory checks - ${r.primaryDirectories.join(', ')}`,
+    'Claude AI (Anthropic) - Narrative, fixes, action planning, keyword strategy',
   ].map(s => `<li>${esc(s)}</li>`).join('');
 }
 
@@ -437,7 +437,7 @@ function buildPdfPlaceholders(audit, totalPages = 15, opts = {}) {
 
     // ── Executive summary ──────────────────────────────────────────────────
     '{{EXEC_HEADLINE}}':      audit.execSummary?.headline  ||
-      `${nameClean} is losing patients to competitors — here's the exact fix plan.`,
+      `${nameClean} is losing patients to competitors - here's the exact fix plan.`,
     '{{EXEC_PARAGRAPH_1}}':   audit.execSummary?.paragraph1 ||
       `Dr. ${nameClean} scores <strong>${audit.score || 0}/100</strong> on The Doc Mirror's 7-Pillar Visibility Index, placing this practice in the <strong>${verdict.label}</strong> tier.`,
     '{{EXEC_PARAGRAPH_2}}':   audit.execSummary?.paragraph2 ||

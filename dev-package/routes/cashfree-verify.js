@@ -50,7 +50,7 @@ async function handler(req, res) {
       `cashfree=${cf.amount} ${cf.currency} stored=${row.amount} ${row.currency}`
     );
     await paidReports.updateByProviderOrderId(orderId, { payment_status: 'MISMATCH' }).catch(() => {});
-    return res.status(400).json({ ok: false, paid: true, error: 'Payment amount/currency mismatch — not accepted' });
+    return res.status(400).json({ ok: false, paid: true, error: 'Payment amount/currency mismatch - not accepted' });
   }
 
   const auditId = row.audit_id;
@@ -58,7 +58,7 @@ async function handler(req, res) {
   // 4. Idempotency — never re-drive an order already generating/delivered.
   if (row.delivered_at || OWNED.has(row.status)) {
     console.log(`[cashfree-verify] order=${orderId} auditId=${auditId} already status=${row.status} — no-op`);
-    return res.json({ ok: true, paid: true, generating: true, auditId, message: 'Payment verified — your report is already being generated.' });
+    return res.json({ ok: true, paid: true, generating: true, auditId, message: 'Payment verified - your report is already being generated.' });
   }
 
   // 5. Mark paid + generating, confirm audit data is present.
@@ -79,7 +79,7 @@ async function handler(req, res) {
     paid:       true,
     generating: true,
     auditId,
-    message:    'Payment verified! Your report is being generated — the PDF will be emailed shortly.',
+    message:    'Payment verified! Your report is being generated - the PDF will be emailed shortly.',
   });
 }
 

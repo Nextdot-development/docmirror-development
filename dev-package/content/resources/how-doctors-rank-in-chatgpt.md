@@ -1,6 +1,6 @@
 ---
 title: How Doctors Rank Inside ChatGPT
-description: When a patient asks ChatGPT to recommend a doctor, only a handful of names get surfaced. Here is how that decision is made — and what you can do about it.
+description: When a patient asks ChatGPT to recommend a doctor, only a handful of names get surfaced. Here is how that decision is made - and what you can do about it.
 date: 2026-06-18
 author: The Doc Mirror
 category: ChatGPT Ranking
@@ -17,14 +17,14 @@ faq:
   - question: If I'm on Healthgrades and Zocdoc, am I safe?
     answer: It helps significantly, but it's not enough on its own. AI tools weight the depth of those listings (completeness, photos, review count, recency) as much as the presence. A bare-bones Healthgrades profile carries far less weight than a verified, fully-filled one.
   - question: Can I just write a Wikipedia article about myself?
-    answer: Wikipedia has strict notability requirements and self-promotion is heavily restricted. A more practical path is being mentioned in articles others write — expert quotes in healthcare media, peer-reviewed publications, or coverage of patient outcomes.
+    answer: Wikipedia has strict notability requirements and self-promotion is heavily restricted. A more practical path is being mentioned in articles others write - expert quotes in healthcare media, peer-reviewed publications, or coverage of patient outcomes.
 ---
 
 Unlike Google, ChatGPT does not show "10 blue links" with a clear ranking system. It composes an answer in natural language and includes 2–5 doctor names it has high confidence in. That confidence is built from a specific set of signals.
 
 ## How AI collects information about doctors
 
-Large language models are trained on snapshots of the web. They ingest billions of pages including medical directories, news articles, hospital staff pages, peer-reviewed journals, and patient review platforms. From this, they build a representation of each doctor as an *entity* — with attributes like specialty, location, qualifications, patient sentiment, and notability.
+Large language models are trained on snapshots of the web. They ingest billions of pages including medical directories, news articles, hospital staff pages, peer-reviewed journals, and patient review platforms. From this, they build a representation of each doctor as an *entity* - with attributes like specialty, location, qualifications, patient sentiment, and notability.
 
 When a patient asks *"best cardiologist in Houston"*, the model retrieves the entities most strongly matching that query and ranks them by confidence.
 
@@ -32,7 +32,7 @@ When a patient asks *"best cardiologist in Houston"*, the model retrieves the en
 
 ### 1. Reviews and patient sentiment
 
-Volume and quality of reviews — but specifically reviews that appear in trusted directories that feed AI training: Healthgrades, Zocdoc, Vitals, WebMD. Reviews on smaller or newer review sites carry less weight.
+Volume and quality of reviews - but specifically reviews that appear in trusted directories that feed AI training: Healthgrades, Zocdoc, Vitals, WebMD. Reviews on smaller or newer review sites carry less weight.
 
 ### 2. Citations in authoritative healthcare content
 

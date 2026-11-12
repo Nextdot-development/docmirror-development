@@ -111,17 +111,17 @@ function generateContentPack(campaign, doctor) {
 
   return {
     reels: [
-      `3 myths about ${topic.replace(/ (month|day|week).*/i, '')} — busted in 30 seconds`,
-      `"What ${sp.toLowerCase()}s wish every patient knew about ${theme}" — talking-head Reel`,
+      `3 myths about ${topic.replace(/ (month|day|week).*/i, '')} - busted in 30 seconds`,
+      `"What ${sp.toLowerCase()}s wish every patient knew about ${theme}" - talking-head Reel`,
       `Quick checklist: when to see a ${sp.toLowerCase()} during ${topic}`,
     ],
     gbpPosts: [
       `${theme}: ${desc || topic}. Book a check-up with ${name} this month.`,
-      `It's ${topic}. Early action matters — call ${name} in ${city} to schedule a screening.`,
+      `It's ${topic}. Early action matters - call ${name} in ${city} to schedule a screening.`,
     ],
     blogTopics: [
       `${topic}: a ${sp} in ${city} explains the signs you shouldn't ignore`,
-      `${theme} — your questions answered`,
+      `${theme} - your questions answered`,
       `Prevention first: how ${sp.toLowerCase()} care helps during ${topic}`,
     ],
     youtubeShorts: [
@@ -129,12 +129,12 @@ function generateContentPack(campaign, doctor) {
       `One thing to do this ${topic}`,
     ],
     whatsappIdeas: [
-      `📣 ${topic} reminder for our patients — message us to book a slot with ${name}.`,
+      `📣 ${topic} reminder for our patients - message us to book a slot with ${name}.`,
       `This month is ${theme}. Reply "BOOK" to schedule your screening.`,
     ],
     emailNewsletterTopics: [
       `${topic}: what it means for you`,
-      `${theme} — a note from ${name}`,
+      `${theme} - a note from ${name}`,
     ],
   };
 }

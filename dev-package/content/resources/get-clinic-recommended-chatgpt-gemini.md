@@ -5,7 +5,7 @@ date: 2026-07-11
 author: Ayush Prashar
 category: AI Visibility
 image: /images/resources/how-to-recommend-clinic.png
-imageAlt: "How to get your clinic recommended by ChatGPT and Gemini — strong directory presence, schema markup, and consistent business data"
+imageAlt: "How to get your clinic recommended by ChatGPT and Gemini - strong directory presence, schema markup, and consistent business data"
 tags: [ChatGPT, Gemini, AI Visibility, Directories]
 seoTitle: "Get Your Clinic Recommended by ChatGPT and Gemini"
 metaDescription: "Follow this step-by-step guide for doctors to appear when patients ask ChatGPT and Gemini for a recommendation, and see what to fix on your profile first."

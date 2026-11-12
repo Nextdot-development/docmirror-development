@@ -184,7 +184,7 @@
       "specialty_tags": ["urologist", "general_practitioner", "cardiologist", "psychiatrist"],
       "region_tags": ["US", "GLOBAL"],
       "campaign_theme": "Don't Wait, Get Checked",
-      "description": "Men avoid doctors — encourage screening for BP, cholesterol, prostate, mental health"
+      "description": "Men avoid doctors - encourage screening for BP, cholesterol, prostate, mental health"
     },
     {
       "name": "Hypertension Awareness Month (India)",
@@ -274,7 +274,7 @@
       "specialty_tags": ["psychiatrist", "psychologist", "general_practitioner"],
       "region_tags": ["US", "IN", "GLOBAL"],
       "campaign_theme": "Talk Saves Lives",
-      "description": "Reduce stigma, crisis resources. Sensitive topic — never use 'before/after'. Provide helpline numbers."
+      "description": "Reduce stigma, crisis resources. Sensitive topic - never use 'before/after'. Provide helpline numbers."
     },
     {
       "name": "Ovarian Cancer Awareness Month",

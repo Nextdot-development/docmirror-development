@@ -53,7 +53,7 @@ async function handler(req, res) {
   const verified = await payments.get('razorpay').verifySubscription({ subscriptionId, paymentId, signature });
   if (!verified.ok) {
     if (verified.reason === 'no_secret') return res.status(500).json({ error: 'RAZORPAY_KEY_SECRET not configured' });
-    return res.status(400).json({ error: 'Payment signature invalid — possible tampered request' });
+    return res.status(400).json({ error: 'Payment signature invalid - possible tampered request' });
   }
 
   const supabase = getSupabaseClient();
@@ -118,7 +118,7 @@ async function handler(req, res) {
     }
   } else {
     console.error('[verify-sub] account creation failed:', createErr?.message);
-    return res.status(500).json({ error: 'Payment succeeded but account creation failed. Contact support — your subscription is active.' });
+    return res.status(500).json({ error: 'Payment succeeded but account creation failed. Contact support - your subscription is active.' });
   }
 
   // ── 3. Record the subscription row (now we have a user_id) ─────────────────
@@ -182,8 +182,8 @@ async function handler(req, res) {
     redirectTarget,
     generating:   true,
     message:      session
-      ? 'Subscription activated. Your dashboard is ready — your report is generating now.'
-      : 'Subscription activated. This email already has an account — please log in to open your dashboard.',
+      ? 'Subscription activated. Your dashboard is ready - your report is generating now.'
+      : 'Subscription activated. This email already has an account - please log in to open your dashboard.',
   });
 }
 

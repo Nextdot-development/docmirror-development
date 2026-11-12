@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://thedocmirror.com/assets/logo/og-image.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Audit History — The Doc Mirror</title>
+<title>Your Audit History - The Doc Mirror</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -101,9 +101,9 @@ main{flex:1;width:100%;max-width:860px;margin:0 auto;padding:2.5rem clamp(1rem,4
   </div>
 
   <div class="kpis" id="kpis" style="display:none">
-    <div class="kpi"><div class="kpi-label">Latest Score</div><div class="kpi-num" id="k-score">—</div><div class="kpi-sub">out of 100</div></div>
-    <div class="kpi"><div class="kpi-label">Google Reviews</div><div class="kpi-num" id="k-reviews">—</div><div class="kpi-sub">latest audit</div></div>
-    <div class="kpi"><div class="kpi-label">Star Rating</div><div class="kpi-num" id="k-rating">—</div><div class="kpi-sub">Google average</div></div>
+    <div class="kpi"><div class="kpi-label">Latest Score</div><div class="kpi-num" id="k-score">-</div><div class="kpi-sub">out of 100</div></div>
+    <div class="kpi"><div class="kpi-label">Google Reviews</div><div class="kpi-num" id="k-reviews">-</div><div class="kpi-sub">latest audit</div></div>
+    <div class="kpi"><div class="kpi-label">Star Rating</div><div class="kpi-num" id="k-rating">-</div><div class="kpi-sub">Google average</div></div>
   </div>
 
   <div class="section-title">Reports &amp; PDFs</div>
@@ -119,7 +119,7 @@ main{flex:1;width:100%;max-width:860px;margin:0 auto;padding:2.5rem clamp(1rem,4
       <li>Weekly action tasks</li><li>Content pack &amp; SEO keywords</li>
       <li>Review growth engine</li><li>90-day growth plan</li>
     </ul>
-    <a class="cta" href="/pages/checkout-subscription.html">Upgrade to Monitor — <span data-price="monitor" data-price-full>—</span> →</a>
+    <a class="cta" href="/pages/checkout-subscription.html">Upgrade to Monitor - <span data-price="monitor" data-price-full>-</span> →</a>
   </div>
 </main>
 </div>
@@ -170,15 +170,15 @@ function render(reports){
   if(reports.length){
     var latest=reports[0];
     el('kpis').style.display='';
-    el('k-score').textContent   = latest.score!=null?latest.score:'—';
-    el('k-reviews').textContent = latest.review_count!=null?latest.review_count:'—';
-    el('k-rating').textContent  = latest.rating!=null?Number(latest.rating).toFixed(1)+'★':'—';
+    el('k-score').textContent   = latest.score!=null?latest.score:'-';
+    el('k-reviews').textContent = latest.review_count!=null?latest.review_count:'-';
+    el('k-rating').textContent  = latest.rating!=null?Number(latest.rating).toFixed(1)+'★':'-';
   }
 
   var list=el('reports-list');
   if(!reports.length){
     list.innerHTML='<div class="empty"><div class="i">📄</div><h3>No reports yet</h3>'+
-      '<p>Run a free visibility check, then unlock your full <span data-price="report">—</span> audit report — it will appear here and be emailed to you.</p>'+
+      '<p>Run a free visibility check, then unlock your full <span data-price="report">-</span> audit report - it will appear here and be emailed to you.</p>'+
       '<a class="btn-primary" href="/">Run a free check →</a></div>';
     // Injected after boot — fill its [data-price] span once prices are in.
     if (window.TDMPricing) {
@@ -188,11 +188,11 @@ function render(reports){
     return;
   }
   list.innerHTML=reports.map(function(r){
-    var date=r.created_at?new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+    var date=r.created_at?new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'-';
     var sub=[r.specialty,r.city].filter(Boolean).join(' · ')||(r.doctor_name||'');
-    return '<div class="report-item"><div class="ri-left"><h4>Audit Report — '+escH(date)+'</h4>'+
+    return '<div class="report-item"><div class="ri-left"><h4>Audit Report - '+escH(date)+'</h4>'+
       (sub?'<p>'+escH(sub)+'</p>':'')+'</div>'+
-      '<div class="ri-score"><div class="n">'+(r.score!=null?r.score:'—')+'</div><div class="l">Score</div></div>'+
+      '<div class="ri-score"><div class="n">'+(r.score!=null?r.score:'-')+'</div><div class="l">Score</div></div>'+
       (r.pdf_url?'<a class="dl-btn" href="'+escH(r.pdf_url)+'" target="_blank" rel="noopener">PDF ↓</a>'
                 :'<button class="dl-btn" disabled>Generating…</button>')+
       '</div>';

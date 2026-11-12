@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0A2540">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Redeem Your Report — The Doc Mirror</title>
+<title>Redeem Your Report - The Doc Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -69,8 +69,8 @@ a.plain{color:var(--navy)}
   <div id="app" style="display:none">
     <div class="card" id="redeem-card">
       <h1>Redeem your report credit</h1>
-      <p class="sub">Tell us which doctor this report is for — we'll run the audit and generate the PDF.</p>
-      <div class="credit-pill" id="credit-pill">— available</div>
+      <p class="sub">Tell us which doctor this report is for - we'll run the audit and generate the PDF.</p>
+      <div class="credit-pill" id="credit-pill">- available</div>
 
       <div id="no-credit-block" style="display:none">
         <p class="empty">No available report credits on this account.</p>
@@ -97,7 +97,7 @@ a.plain{color:var(--navy)}
       </form>
 
       <div id="generating-block" style="display:none">
-        <p class="sub"><span class="spinner" style="border-color:rgba(10,37,64,.2);border-top-color:var(--navy)"></span> Generating your report — this usually takes under a minute. You can leave this page; it'll be waiting under "Your reports" below.</p>
+        <p class="sub"><span class="spinner" style="border-color:rgba(10,37,64,.2);border-top-color:var(--navy)"></span> Generating your report - this usually takes under a minute. You can leave this page; it'll be waiting under "Your reports" below.</p>
       </div>
     </div>
 
@@ -174,12 +174,12 @@ async function downloadReport(auditId, btn) {
     if (body.ready && body.url) {
       window.location.href = body.url;
     } else {
-      btn.textContent = 'Still generating — try again shortly';
+      btn.textContent = 'Still generating - try again shortly';
       setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 3000);
       return;
     }
   } catch (e) {
-    btn.textContent = 'Error — retry';
+    btn.textContent = 'Error - retry';
   }
   btn.disabled = false;
   setTimeout(function () { btn.textContent = original; }, 1500);

@@ -276,7 +276,7 @@ function buildGmbMissingReport({ fn, ln, sp, ct, parentSp, message, competitors 
     pillarTotal:  score,
     verdictLabel: 'Not visible on Google',
     verdictColor: '#DC2626',
-    tierLabel:    'Limited Visibility Audit — No Google Business Profile',
+    tierLabel:    'Limited Visibility Audit - No Google Business Profile',
     pillars: { gmb: 0, rating: 0, reviews: 0, photos: 0, rank: 0, aiVisibility: 0, directories: 0 },
 
     aiVisibility: { google: 0, chatgpt: 0, gemini: 0, claude: 0, isReal: false },
@@ -303,11 +303,11 @@ function buildGmbMissingReport({ fn, ln, sp, ct, parentSp, message, competitors 
     competitorBenchmark: (sp && city) ? `Top ${sp}s in ${city}`.replace(/\s+/g, ' ').trim() : '',
     competitorGapSummary: '',
     issues: [
-      'No Google Business Profile found — patients searching Google Search or Maps cannot find your practice.',
+      'No Google Business Profile found - patients searching Google Search or Maps cannot find your practice.',
       'Reviews: not found · Photos: not found · Business hours: not found · Website: unknown.',
     ],
     recommendations: [
-      'Create and verify your Google Business Profile — the single most important step to become visible to patients.',
+      'Create and verify your Google Business Profile - the single most important step to become visible to patients.',
       'Add your practice name, specialty, address, phone number, hours and website.',
       'Once your profile is live, ask recent patients to leave Google reviews.',
     ],
@@ -336,7 +336,7 @@ function buildOrganicProfileReport({ fn, ln, sp, ct, parentSp, profile, competit
     notFound:            false,
     confidence:          0,
     generatedAt:         new Date().toISOString(),
-    message:             'No Google Business Profile found — doctor appears in organic Google results',
+    message:             'No Google Business Profile found - doctor appears in organic Google results',
 
     // Identity
     doctorName,
@@ -366,7 +366,7 @@ function buildOrganicProfileReport({ fn, ln, sp, ct, parentSp, profile, competit
     pillarTotal:  score,
     verdictLabel: 'Found in organic search · No Google Business Profile',
     verdictColor: '#D97706',
-    tierLabel:    'Limited Visibility Audit — Organic Profile Only',
+    tierLabel:    'Limited Visibility Audit - Organic Profile Only',
     pillars: { gmb: 0, rating: 0, reviews: 0, photos: 0, rank: 6, aiVisibility: 0, directories: 4 },
     aiVisibility: { google: 0, chatgpt: 0, gemini: 0, claude: 0, isReal: false },
 

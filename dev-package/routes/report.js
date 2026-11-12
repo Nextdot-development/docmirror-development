@@ -268,7 +268,7 @@ async function sendEmail(email, doctorName, pdfBuffer) {
   await transporter.sendMail({
     from:    `"The Doc Mirror" <${process.env.GMAIL_USER}>`,
     to:      email,
-    subject: `Your Doctor Visibility Report — Dr. ${cleanName}`,
+    subject: `Your Doctor Visibility Report - Dr. ${cleanName}`,
     html: `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#3D4D5C">
   <div style="background:#0A2540;padding:24px 32px;border-radius:12px 12px 0 0">

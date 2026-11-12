@@ -5,7 +5,7 @@ date: 2026-07-15
 author: The Doc Mirror Team
 category: Visibility Basics
 image: /images/resources/what-is-doctor-online-visibility.png
-imageAlt: "See how patients find you online — a doctor's visibility score across Google, AI assistants, and directories"
+imageAlt: "See how patients find you online - a doctor's visibility score across Google, AI assistants, and directories"
 tags: [Online Visibility, Google, AI Visibility, Directories]
 seoTitle: "What Is Doctor Online Visibility? A Beginner's Guide"
 metaDescription: "Learn what doctor online visibility means: how easily patients and AI assistants find you when they search, and how to measure yours today."

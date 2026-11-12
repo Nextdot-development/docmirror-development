@@ -55,7 +55,7 @@ async function checkout(req, res) {
 
   if (!result.ok) {
     if (result.reason === 'plan_not_configured') {
-      return res.status(500).json({ error: `${result.planIdEnv} not configured — create the Monitor plan for this region in the Razorpay dashboard first` });
+      return res.status(500).json({ error: `${result.planIdEnv} not configured - create the Monitor plan for this region in the Razorpay dashboard first` });
     }
     return res.status(503).json({ error: planGuard.blockedMessage(result.reason), code: result.reason });
   }
@@ -99,14 +99,14 @@ async function verify(req, res) {
   if (!result.ok) {
     console.error(`[monitor-verify] REJECTED subId=${subscriptionId} userId=${userId} reason=${result.reason} failed=${(result.failed || []).join(',')}`);
     if (result.reason === 'no_secret') return res.status(500).json({ error: 'RAZORPAY_KEY_SECRET not configured' });
-    if (result.reason === 'signature_mismatch') return res.status(400).json({ error: 'Payment signature invalid — possible tampered request' });
+    if (result.reason === 'signature_mismatch') return res.status(400).json({ error: 'Payment signature invalid - possible tampered request' });
     if (result.reason === 'razorpay_unreachable') return res.status(502).json({ error: 'Could not confirm the payment with Razorpay. Please refresh in a moment.' });
     if (result.reason === 'user_mismatch') return res.status(403).json({ error: 'This subscription belongs to a different account.' });
     if (result.reason === 'wrong_plan') return res.status(400).json({ error: 'That payment is not for the Monitor plan.' });
     return res.status(400).json({
       error: (result.failed || []).includes('status')
         ? 'Your subscription is not active yet. If you were charged, refresh in a minute or contact support.'
-        : 'The subscription does not match the Monitor plan price. Nothing has been activated — please contact support.',
+        : 'The subscription does not match the Monitor plan price. Nothing has been activated - please contact support.',
       code: 'VERIFICATION_FAILED',
       failed: result.failed,
     });
@@ -122,7 +122,7 @@ async function verify(req, res) {
     return res.status(500).json({
       ok: false,
       error: 'Payment confirmed, but we could not finish activating your Monitor plan. ' +
-             'Your subscription is active — press Retry, or contact support with this id.',
+             'Your subscription is active - press Retry, or contact support with this id.',
       code: 'PROVISIONING_FAILED',
       failedStep: provisionResult.failedStep,
       subscriptionId,

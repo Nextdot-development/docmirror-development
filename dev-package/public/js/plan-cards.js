@@ -67,19 +67,19 @@
       // HARDCODED currency figure — the one price-ish string this file still
       // has — because it is a claim about what agencies charge, not our price,
       // and the India figure is a business decision, not a conversion.
-      anchor: 'What marketing agencies charge $150 to produce — in 60 seconds.',
+      anchor: 'What marketing agencies charge $150 to produce - in 60 seconds.',
       features: [
         'All 7 visibility pillars scored',
         'AI Visibility Score (ChatGPT, Gemini, Claude)',
         'Brand search trend + YouTube analysis',
         'Social &amp; directory presence audit',
         '5 AI-written fixes with copy-paste steps',
-        'Competitor narrative — why they beat you',
+        'Competitor narrative - why they beat you',
         'SEO keyword strategy for your specialty',
         'Content strategy brief (Reels + blogs)',
-        'Patient journey audit — where you lose patients',
+        'Patient journey audit - where you lose patients',
         '90-day action plan with KPIs',
-        'PDF report — emailed in 60 seconds',
+        'PDF report - emailed in 60 seconds',
         'Audit History page (your past reports)'
       ],
       cta: {
@@ -93,13 +93,13 @@
       id: 'monitor',
       name: 'Monthly monitor',
       badge: 'Most popular',
-      tagline: 'Weekly automated checks. Know instantly when something changes — before patients notice.',
+      tagline: 'Weekly automated checks. Know instantly when something changes - before patients notice.',
       price: 'monitor',
       period: '/month',
       note: 'Cancel anytime · One patient visit pays for months.',
       features: [
         'Everything in Full audit report',
-        'Live Visibility Dashboard — scores, competitors, reviews &amp; AI rankings in real time',
+        'Live Visibility Dashboard - scores, competitors, reviews &amp; AI rankings in real time',
         'Weekly visibility audit + PDF by email',
         'AI Rank Tracker (ChatGPT, Claude, Gemini, Perplexity)',
         'Competitor watchlist &amp; change alerts',
@@ -122,13 +122,13 @@
       id: 'agency',
       name: 'Clinic / Agency',
       badge: 'Multi-doctor',
-      tagline: 'One login for your whole practice — every doctor tracked, each with their own dashboard.',
+      tagline: 'One login for your whole practice - every doctor tracked, each with their own dashboard.',
       price: 'agency',
       period: '/month',
       note: 'Cancel anytime. No contracts.',
       // The doctor limit is filled from ORG_PLANS at runtime, like the price.
       features: [
-        'Add up to <span data-plan-limit="agency">—</span> doctors',
+        'Add up to <span data-plan-limit="agency">-</span> doctors',
         'Each doctor gets their own dashboard',
         'Everything in Monthly monitor, for every doctor',
         'Switch between doctors instantly'
@@ -147,12 +147,12 @@
   function priceHtml(plan, variant) {
     if (!plan.price) {
       return variant === 'compact'
-        ? '<span data-price-symbol>—</span>0<span> ' + esc(plan.period) + '</span>'
-        : '<span data-price-symbol>—</span>0';
+        ? '<span data-price-symbol>-</span>0<span> ' + esc(plan.period) + '</span>'
+        : '<span data-price-symbol>-</span>0';
     }
     return variant === 'compact'
-      ? '<span data-price="' + plan.id + '">—</span><span> ' + esc(plan.period) + '</span>'
-      : '<span data-price="' + plan.id + '">—</span>';
+      ? '<span data-price="' + plan.id + '">-</span><span> ' + esc(plan.period) + '</span>'
+      : '<span data-price="' + plan.id + '">-</span>';
   }
 
   // ── Homepage variant: .p-card / .p-name / .p-price / .p-feats / .p-cta ────

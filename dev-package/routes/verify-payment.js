@@ -46,7 +46,7 @@ async function handler(req, res) {
       return res.status(500).json({ error: 'RAZORPAY_KEY_SECRET not configured' });
     }
     // signature_mismatch (or any other failure)
-    return res.status(400).json({ error: 'Payment signature invalid — possible tampered request' });
+    return res.status(400).json({ error: 'Payment signature invalid - possible tampered request' });
   }
   const auditId = verified.auditId;
 
@@ -84,7 +84,7 @@ async function handler(req, res) {
       const failed = Object.keys(factors).filter((k) => !factors[k]);
       console.error(`[verify] REJECTED auditId=${auditId} orderId=${orderId} failed=[${failed.join(',')}]`);
       return res.status(400).json({
-        error: 'Payment does not match what was quoted at checkout — possible tampered request. Nothing has been unlocked.',
+        error: 'Payment does not match what was quoted at checkout - possible tampered request. Nothing has been unlocked.',
         code: 'VERIFICATION_FAILED',
         failed,
       });
@@ -125,7 +125,7 @@ async function handler(req, res) {
         ok: true,
         credited: true,
         redirect: '/pages/redeem-report.html',
-        message: 'Payment verified — your report credit is ready. Tell us which doctor it\'s for to generate the PDF.',
+        message: 'Payment verified - your report credit is ready. Tell us which doctor it\'s for to generate the PDF.',
       });
     }
 
@@ -184,7 +184,7 @@ async function handler(req, res) {
     generating: true,
     emailSent:  false,
     auditId,
-    message:    'Payment verified! Your report is being generated — your dashboard will fill in within a minute and the PDF will be emailed shortly.',
+    message:    'Payment verified! Your report is being generated - your dashboard will fill in within a minute and the PDF will be emailed shortly.',
   });
 }
 

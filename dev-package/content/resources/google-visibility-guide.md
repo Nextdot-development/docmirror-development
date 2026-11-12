@@ -1,6 +1,6 @@
 ---
 title: Google Visibility for Doctors
-description: Understand how Google Search and Google Maps decide which doctors patients discover — and the profile signals that move you up.
+description: Understand how Google Search and Google Maps decide which doctors patients discover - and the profile signals that move you up.
 date: 2026-07-02
 author: The Doc Mirror
 category: Google Visibility
@@ -11,7 +11,7 @@ seoTitle: "Google Visibility for Doctors: Search and Maps Guide"
 metaDescription: "Understand how Google Search and Google Maps decide which doctors patients discover, and the concrete profile signals that move your practice up."
 faq:
   - question: What is the difference between Google Search and the Google local pack?
-    answer: Google Search is the classic list of blue links — your website, directory profiles, and articles that mention you. The local pack is the map with three highlighted businesses that appears for searches like "dentist near me," and it is driven mainly by your Google Business Profile, reviews, and proximity to the searcher.
+    answer: Google Search is the classic list of blue links - your website, directory profiles, and articles that mention you. The local pack is the map with three highlighted businesses that appears for searches like "dentist near me," and it is driven mainly by your Google Business Profile, reviews, and proximity to the searcher.
   - question: How do I rank higher in Google Maps as a doctor?
     answer: Claim and fully complete your Google Business Profile, choose the most specific primary category, add photos and services, and earn a steady stream of reviews that you reply to. Keeping your name, address, and phone identical everywhere (NAP consistency) also helps Google trust your listing.
   - question: How important are patient reviews for Google visibility?
@@ -42,14 +42,14 @@ Google has been fairly open that the local pack is driven by three factors:
 | Distance | How close you are to the searcher |
 | Prominence | How well-known and well-reviewed you are |
 
-You cannot change distance — but relevance and prominence are entirely within your control.
+You cannot change distance - but relevance and prominence are entirely within your control.
 
 ## A prioritized checklist
 
 - Claim and fully complete your **Google Business Profile**
 - Choose the most specific primary category for your specialty
 - Add photos, hours, services, and insurance accepted
-- Ask satisfied patients for reviews — and reply to every one
+- Ask satisfied patients for reviews - and reply to every one
 - Keep your name, address, and phone identical everywhere (NAP consistency)
 - Add `MedicalOrganization` structured data to your website
 
@@ -57,4 +57,4 @@ You cannot change distance — but relevance and prominence are entirely within 
 
 ## How The Doc Mirror helps
 
-The Doc Mirror audits both surfaces at once — your organic Search footprint and your Maps presence — and shows you exactly which signals are holding you back, ranked by impact.
+The Doc Mirror audits both surfaces at once - your organic Search footprint and your Maps presence - and shows you exactly which signals are holding you back, ranked by impact.
