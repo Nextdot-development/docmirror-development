@@ -11,6 +11,8 @@ const pricingSsr = require('./lib/pricing-ssr');
 
 const express = require('express');
 const cors    = require('cors');
+const { securityHeaders } = require('./lib/security-headers');
+const cspReportHandler    = require('./routes/csp-report');
 
 const auditModule             = require('./routes/audit');
 const auditHandler            = auditModule;
@@ -81,7 +83,20 @@ const adminSeo                    = require('./routes/admin/seo');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Security headers ───────────────────────────────────────────────────────
+// First so every response (pages, static assets, API) carries CSP, nosniff,
+// frame and referrer policies. See lib/security-headers.js for the policy and
+// docs/security-headers.md for why each origin is allowed.
+app.disable('x-powered-by');
+app.use(securityHeaders());
+
 app.use(cors());
+
+// Browser CSP violation reports (report-uri). Own parser: the body arrives as
+// application/csp-report or application/reports+json, never plain JSON.
+app.post('/api/csp-report',
+  express.json({ type: ['application/csp-report', 'application/reports+json', 'application/json'], limit: '16kb' }),
+  cspReportHandler);
 
 // Stripe webhook needs raw body — register before express.json()
 app.post('/api/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
@@ -223,7 +238,16 @@ app.get('/pages/agency-signup.html', (req, res) => {
 });
 
 // ── Static site ────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, 'public')));
+// Self-hosted font files never change in place (a new version gets a new file
+// name), so browsers may keep them for a year. Everything else keeps the
+// default revalidate-every-time policy.
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders(res, filePath) {
+    if (filePath.includes(`${path.sep}assets${path.sep}fonts${path.sep}`)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  },
+}));
 
 // ── API routes ─────────────────────────────────────────────────────────────
 app.post('/api/audit',                    auditHandler);
