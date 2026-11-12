@@ -93,8 +93,8 @@ async function verifyPlan(planId, expectedUnits, expectedCurrency, label = 'plan
 // states that no money moved.
 function blockedMessage(reason) {
   return reason === 'plan_price_mismatch'
-    ? 'Subscriptions are temporarily unavailable while we finish a price update. Please try again shortly — you have not been charged.'
-    : 'Subscriptions are temporarily unavailable. Please try again shortly — you have not been charged.';
+    ? 'Subscriptions are temporarily unavailable while we finish a price update. Please try again shortly - you have not been charged.'
+    : 'Subscriptions are temporarily unavailable. Please try again shortly - you have not been charged.';
 }
 
 module.exports = { verifyPlan, blockedMessage, keyMode };

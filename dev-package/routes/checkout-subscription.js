@@ -23,7 +23,7 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not configured' });
   }
   if (!planId) {
-    return res.status(500).json({ error: 'RAZORPAY_MONITOR_PLAN_ID not configured — create a plan in Razorpay dashboard first' });
+    return res.status(500).json({ error: 'RAZORPAY_MONITOR_PLAN_ID not configured - create a plan in Razorpay dashboard first' });
   }
 
   // Safe diagnostics: enough to confirm WHICH plan the running instance picked up

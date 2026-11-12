@@ -5,7 +5,7 @@ date: 2026-07-14
 author: The Doc Mirror Team
 category: Google Visibility
 image: /images/resources/The-Complete-Guide.png
-imageAlt: "The complete guide to Google Business Profile for doctors — get found by patients on Google and Maps"
+imageAlt: "The complete guide to Google Business Profile for doctors - get found by patients on Google and Maps"
 tags: [Google Business Profile, Local SEO, Google Maps, India]
 seoTitle: "Google Business Profile Setup Guide for Indian Doctors"
 metaDescription: "Follow this step-by-step guide for Indian doctors to set up, verify, and optimise a Google Business Profile so patients find your clinic accurately."

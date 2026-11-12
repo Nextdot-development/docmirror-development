@@ -442,7 +442,7 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
     <div class="doctor-info">
       <div class="doctor-av" id="doc-av">DR</div>
       <div class="doctor-name" id="doc-name">Loading&hellip;</div>
-      <div class="doctor-spec" id="doc-spec">&mdash;</div>
+      <div class="doctor-spec" id="doc-spec">-</div>
     </div>
 
     <!-- Multi-doctor profile switcher — populated + shown only in profile mode. -->
@@ -496,7 +496,7 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
         <div class="topbar-sub" id="practice-sub">Loading your data&hellip;</div>
       </div>
       <div class="topbar-right">
-        <span class="week-pill" id="week-label">&mdash;</span>
+        <span class="week-pill" id="week-label">-</span>
         <div class="avatar" id="topbar-av">DR</div>
       </div>
     </div>
@@ -660,7 +660,7 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
       <div class="section-head">
         <div class="section-title">Doctors <span class="tag new">Agency</span></div>
         <div class="agency-toolbar">
-          <span id="agency-usage">&mdash;</span>
+          <span id="agency-usage">-</span>
           <button class="agency-btn" id="agency-add-btn" type="button" onclick="openAddDoctorModal()">+ Add doctor</button>
         </div>
       </div>
@@ -725,7 +725,7 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
             <div class="loading-step" id="ads3"><div class="s-icon idle" id="adi3"></div>Comparing against nearby competitors&hellip;</div>
             <div class="loading-step" id="ads4"><div class="s-icon idle" id="adi4"></div>Analysing rating and review signals&hellip;</div>
             <div class="loading-step" id="ads5"><div class="s-icon idle" id="adi5"></div>Calculating the Doctor Visibility Score&hellip;</div>
-            <div class="ad-timeout" id="ad-tm">Taking a moment longer &mdash; almost there&hellip;</div>
+            <div class="ad-timeout" id="ad-tm">Taking a moment longer - almost there&hellip;</div>
           </div>
 
           <!-- STEP 3a — more than one listing matched: pick the right one -->
@@ -788,21 +788,21 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
       <div class="hero-grid">
         <div class="score-hero">
           <div class="sh-label">Doctor Visibility Score &middot; Latest Report</div>
-          <div class="sh-num" id="hero-score">&mdash;<span class="sh-out">/100</span></div>
+          <div class="sh-num" id="hero-score">-<span class="sh-out">/100</span></div>
           <span class="sh-delta delta-same" id="hero-delta">First report</span>
           <div class="sh-meta" id="hero-meta">Run your first audit to see your score</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Google Reviews</div>
-          <div class="kpi-num" id="kpi-reviews">&mdash;</div>
+          <div class="kpi-num" id="kpi-reviews">-</div>
           <div class="kpi-sub" id="kpi-reviews-sub">Awaiting data</div>
-          <span class="kpi-delta same" id="kpi-reviews-delta">—</span>
+          <span class="kpi-delta same" id="kpi-reviews-delta">-</span>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Star Rating</div>
-          <div class="kpi-num" id="kpi-rating">&mdash;</div>
+          <div class="kpi-num" id="kpi-rating">-</div>
           <div class="kpi-sub" id="kpi-rating-sub">Google average</div>
-          <span class="kpi-delta same" id="kpi-rating-delta">—</span>
+          <span class="kpi-delta same" id="kpi-rating-delta">-</span>
         </div>
       </div>
     </section>
@@ -826,7 +826,7 @@ main{padding:1.5rem 2rem 4rem;max-width:1200px}
         <div class="section-title">Reports &amp; PDFs</div>
       </div>
       <div class="reports-list" id="reports-list">
-        <div class="empty-card"><div class="empty-icon">📄</div><div class="empty-title">No reports yet</div><div class="empty-sub">Run a check and your report will generate here automatically — included in your Monitor plan.</div></div>
+        <div class="empty-card"><div class="empty-icon">📄</div><div class="empty-title">No reports yet</div><div class="empty-sub">Run a check and your report will generate here automatically - included in your Monitor plan.</div></div>
       </div>
     </section>
 
@@ -1013,8 +1013,8 @@ async function checkAuth() {
     var isAudit = (plan === 'audit');
     var headline = isAudit ? 'Upgrade to Unlock Your Dashboard' : 'Dashboard Requires Monitor Plan';
     var message = isAudit
-      ? 'Your current plan is <strong>Audit (' + tdmPrice('report', '—') + ')</strong>. Upgrade to <strong>Monitor (' + tdmPrice('monitor', '—', true) + ')</strong> to unlock weekly visibility tracking, competitor intelligence, review sentiment, alerts, and this live dashboard.'
-      : 'The dashboard is included in the Doctor Visibility Monitor (' + tdmPrice('monitor', '—', true) + '). Subscribe to unlock weekly monitoring, rank tracking, competitor alerts, and more.';
+      ? 'Your current plan is <strong>Audit (' + tdmPrice('report', '-') + ')</strong>. Upgrade to <strong>Monitor (' + tdmPrice('monitor', '-', true) + ')</strong> to unlock weekly visibility tracking, competitor intelligence, review sentiment, alerts, and this live dashboard.'
+      : 'The dashboard is included in the Doctor Visibility Monitor (' + tdmPrice('monitor', '-', true) + '). Subscribe to unlock weekly monitoring, rank tracking, competitor alerts, and more.';
     var em = _profile && _profile.email ? _profile.email : '';
     if (em) { try { localStorage.setItem('tdm_checkout_email', em); } catch(_) {} }
     var secondary = isAudit
@@ -1026,7 +1026,7 @@ async function checkAuth() {
       '<div class="logo">The Doc <span>Mirror</span></div>' +
       '<h2 style="color:#fff;margin-bottom:.5rem">' + headline + '</h2>' +
       '<p style="color:rgba(255,255,255,.7);max-width:380px;line-height:1.6;margin-bottom:1.5rem">' + message + '</p>' +
-      '<a href="/pages/checkout-subscription.html?upgrade=1" style="background:#00A878;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.95rem">Upgrade to Monitor — ' + tdmPrice('monitor', '—', true) + ' →</a>' +
+      '<a href="/pages/checkout-subscription.html?upgrade=1" style="background:#00A878;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.95rem">Upgrade to Monitor - ' + tdmPrice('monitor', '-', true) + ' →</a>' +
       secondary;
     document.getElementById('auth-gate').classList.add('show');
     return;
@@ -1237,7 +1237,7 @@ function shortWebsite(url) {
 function agencyCardHtml(p) {
   var last = _agencyReportsByProfile[p.id];
   var lastTxt  = last && last.date ? new Date(last.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'No audits yet';
-  var scoreTxt = last && last.score != null ? (last.score + '/100') : '&mdash;';
+  var scoreTxt = last && last.score != null ? (last.score + '/100') : '-';
   var meta = [p.speciality, p.city].filter(Boolean).map(escH).join(' · ');
   var site = p.website
     ? '<a class="agency-website" href="' + escAttr(p.website) + '" title="' + escAttr(p.website) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">' + escH(shortWebsite(p.website)) + '</a>'
@@ -1249,7 +1249,7 @@ function agencyCardHtml(p) {
       ' onclick="openProfile(\'' + escAttr(p.id) + '\')">' +
       '<div class="agency-card-top">' +
         '<div class="agency-card-info"><div class="agency-name">' + escH(p.name || 'Unnamed') + '</div>' +
-          '<div class="agency-meta">' + (meta || '&mdash;') + '</div>' + site + '</div>' +
+          '<div class="agency-meta">' + (meta || '-') + '</div>' + site + '</div>' +
         '<button class="agency-archive" type="button" onclick="event.stopPropagation();archiveDoctor(\'' + escAttr(p.id) + '\')">Archive</button>' +
       '</div>' +
       '<div class="agency-card-bottom">' +
@@ -1406,7 +1406,7 @@ function adOnScanResult(d, p) {
 
   adEl('ad-res-name').textContent = d.doctorName || d.doctorNameClean || 'This doctor';
   var city = adCity(d);
-  adEl('ad-res-meta').textContent = [d.specialty || d.googleSpecialty, city].filter(Boolean).join(' · ') || '—';
+  adEl('ad-res-meta').textContent = [d.specialty || d.googleSpecialty, city].filter(Boolean).join(' · ') || '-';
   var verdict = adEl('ad-res-verdict');
   verdict.textContent = d.verdictLabel || '';
   verdict.style.color = d.verdictColor || 'var(--slate-light)';
@@ -1433,8 +1433,8 @@ function adOnScanResult(d, p) {
   } else {
     note.className = 'ad-note warn';
     var warnMsg = d.source === 'organic_profile'
-      ? 'Found in organic search, but there is no Google Business Profile to pin. You can still add this doctor — audits will search by name.'
-      : 'No public Google Business Profile found. You can still add this doctor — audits will search by name until a listing exists.';
+      ? 'Found in organic search, but there is no Google Business Profile to pin. You can still add this doctor - audits will search by name.'
+      : 'No public Google Business Profile found. You can still add this doctor - audits will search by name until a listing exists.';
     // Direct link to create one — same CTA as the free-scan preview report.
     note.innerHTML = escH(warnMsg) +
       ' <a href="https://business.google.com/create" target="_blank" rel="noopener" style="font-weight:700;text-decoration:underline">Create a Google Business Profile &rarr;</a>';
@@ -1473,7 +1473,7 @@ async function addScannedDoctor() {
     google_maps_url:   d.googleMapsUrl || '',
     parent_speciality: (_adParams && _adParams.spp) || ''
   };
-  if (!body.name) { adErr('ad-add-err', 'The scan returned no doctor name — try again.'); return; }
+  if (!body.name) { adErr('ad-add-err', 'The scan returned no doctor name - try again.'); return; }
 
   adErr('ad-add-err', '');
   adBusy(true, 'Adding the doctor…');
@@ -1483,7 +1483,7 @@ async function addScannedDoctor() {
     adBusy(false);
     if (res.status === 403)      adErr('ad-add-err', (res.body && res.body.error) || 'Profile limit reached.');
     else if (res.status === 400) adErr('ad-add-err', (res.body && res.body.error) || 'Please check the details and try again.');
-    else if (res.status === 401) adErr('ad-add-err', 'Session expired — please refresh and sign in again.');
+    else if (res.status === 401) adErr('ad-add-err', 'Session expired - please refresh and sign in again.');
     else                         adErr('ad-add-err', (res.body && res.body.error) || ('Could not add doctor (HTTP ' + res.status + ').'));
     return;
   }
@@ -1491,9 +1491,9 @@ async function addScannedDoctor() {
   // ── The profile now exists. Nothing below may delete it. ─────────────────
   var prof = (res.body && res.body.profile) || {};
   var added = 'Added ' + (prof.name || 'doctor') +
-    (prof.place_id ? ' — pinned to their Google listing.' : ' — no Google listing to pin; audits will search by name.');
+    (prof.place_id ? ' - pinned to their Google listing.' : ' - no Google listing to pin; audits will search by name.');
 
-  adBusy(true, 'Generating the full report — this can take up to a minute…');
+  adBusy(true, 'Generating the full report - this can take up to a minute…');
   var reportState = 'failed';   // 'done' | 'pending' | 'failed'
   try {
     var g = await agencyApi('POST', '/api/generate-report-entitled',
@@ -1513,11 +1513,11 @@ async function addScannedDoctor() {
   await refreshAgency();
 
   if (reportState === 'done') {
-    agencyMsg(added + ' Report generated — the score is on the card.', false);
+    agencyMsg(added + ' Report generated - the score is on the card.', false);
   } else if (reportState === 'pending') {
-    agencyMsg(added + ' The report is still generating — reload in a minute to see the score.', false);
+    agencyMsg(added + ' The report is still generating - reload in a minute to see the score.', false);
   } else {
-    agencyMsg(added + ' The report could not be generated — the doctor was still added; use “Run audit” on the card to try again.', true);
+    agencyMsg(added + ' The report could not be generated - the doctor was still added; use “Run audit” on the card to try again.', true);
   }
 }
 
@@ -1547,7 +1547,7 @@ async function adWaitForReport(profileId, timeoutMs) {
         _agencyReportsByProfile = buildReportsByProfile(reps);
         return true;
       }
-    } catch (e) { /* transient — keep polling until the deadline */ }
+    } catch (e) { /* transient - keep polling until the deadline */ }
   }
   return false;
 }
@@ -1640,7 +1640,7 @@ async function runProfileAudit(btn, profileId) {
     btn.textContent = 'Done ✓';
     setTimeout(function(){ btn.disabled = false; btn.textContent = old; }, 5000);
   } catch (e) {
-    agencyMsg('Audit failed — please try again.', true);
+    agencyMsg('Audit failed - please try again.', true);
     btn.disabled = false; btn.textContent = old;
   }
 }
@@ -1819,8 +1819,8 @@ function initDashboard(profile, reports) {
   el('settings-email').textContent = email;
   var _plan = (_profile && _profile.plan) || '';
   el('settings-plan').textContent = (_plan === 'agency')
-    ? 'Clinic / Agency — ' + tdmPrice('agency', '—', true)
-    : 'Doctor Visibility Monitor — ' + tdmPrice('monitor', '—', true);
+    ? 'Clinic / Agency - ' + tdmPrice('agency', '-', true)
+    : 'Doctor Visibility Monitor - ' + tdmPrice('monitor', '-', true);
   // Self-serve cancel — only for active Monitor subscribers.
   if (_profile && _profile.plan === 'monitor') { var _cr = el('cancel-sub-row'); if (_cr) _cr.style.display = ''; }
 
@@ -1915,7 +1915,7 @@ function populateScore(latest, prev) {
         deltaEl.textContent = '↓ ' + d + ' from last report';
         deltaEl.className = 'sh-delta delta-down';
       } else {
-        deltaEl.textContent = '— same as last report';
+        deltaEl.textContent = '- same as last report';
         deltaEl.className = 'sh-delta delta-same';
       }
     } else {
@@ -1932,7 +1932,7 @@ function populateScore(latest, prev) {
     el('kpi-reviews-sub').textContent = 'Google reviews';
     if (prev && prev.review_count != null) {
       var rd = latest.review_count - prev.review_count;
-      setKpiDelta('kpi-reviews-delta', rd, rd > 0 ? '+' + rd + ' new' : rd < 0 ? rd + ' lost' : '— same');
+      setKpiDelta('kpi-reviews-delta', rd, rd > 0 ? '+' + rd + ' new' : rd < 0 ? rd + ' lost' : '- same');
     } else {
       el('kpi-reviews-delta').textContent = 'from latest audit';
       el('kpi-reviews-delta').className = 'kpi-delta same';
@@ -2100,14 +2100,14 @@ function populateReports(reports) {
     // a subscriber — no payment language. Running a check generates the full
     // report automatically (entitlement-gated server-side; no payment).
     c.innerHTML = '<div class="empty-card"><div class="empty-icon">📄</div><div class="empty-title">No reports yet</div>' +
-      '<div class="empty-sub">Run a check and your report will generate here automatically — included in your Monitor plan.</div>' +
+      '<div class="empty-sub">Run a check and your report will generate here automatically - included in your Monitor plan.</div>' +
       '<a href="/" style="display:inline-block;margin-top:12px;background:#00A878;color:#fff;padding:9px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem">Run a check →</a></div>';
     return;
   }
   c.innerHTML = reports.map(function(r, i) {
     var dateStr = r.created_at
       ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
-      : '—';
+      : '-';
     var subline = [r.specialty, r.city].filter(Boolean).join(' · ') || (r.doctor_name || '');
     var prevScore = (i + 1 < reports.length) ? reports[i + 1].score : null;
     var delta = (r.score != null && prevScore != null) ? (r.score - prevScore) : null;
@@ -2136,7 +2136,7 @@ function populateReports(reports) {
       '</div>';
 
     return '<div class="report-item">' +
-      '<div class="ri-left" style="flex:1 1 160px"><h4>Audit Report &mdash; ' + escH(dateStr) + '</h4>' +
+      '<div class="ri-left" style="flex:1 1 160px"><h4>Audit Report - ' + escH(dateStr) + '</h4>' +
       (subline ? '<p>' + escH(subline) + '</p>' : '') + '</div>' +
       platforms +
       deltaHtml +
@@ -2188,7 +2188,7 @@ function populateAiTracker(specialty, city, latest) {
       var l = likelihood(p.base);
       return '<div class="ai-platform-card">' +
         '<div class="ai-pc-name">' + escH(p.name) + '</div>' +
-        '<div class="ai-pc-rank"><span class="pos">' + (l != null ? l + '%' : '—') + '</span></div>' +
+        '<div class="ai-pc-rank"><span class="pos">' + (l != null ? l + '%' : '-') + '</span></div>' +
         '<div class="ai-pc-trend"><span class="' + (l != null && l >= 60 ? 'up' : 'same') + '">' +
         (l != null ? (l >= 60 ? 'Likely cited' : 'Building') : 'No data') + '</span></div>' +
         '</div>';
@@ -2233,21 +2233,21 @@ function populateCompetitors(latest, plan, insights) {
   }
 
   // Build YOU card
-  var myScore = latest.score != null ? latest.score : '—';
+  var myScore = latest.score != null ? latest.score : '-';
   var myCard  =
     '<div class="comp-card-v6 is-you">' +
     '<div class="comp-rank-pill you">YOU</div>' +
     '<div class="comp-name">' + escH(latest.doctor_name || 'Your Practice') + '</div>' +
     '<div class="comp-score">' + myScore + '<span class="of">/100</span></div>' +
     '<div class="comp-stats">' +
-    statRow('Reviews', latest.review_count != null ? latest.review_count : '—', '') +
-    statRow('Rating',  latest.rating != null ? Number(latest.rating).toFixed(1) + '★' : '—', '') +
-    statRow('Photos',  latest.photo_count != null ? latest.photo_count : '—', '') +
-    statRow('AI rank', '—', '') +
+    statRow('Reviews', latest.review_count != null ? latest.review_count : '-', '') +
+    statRow('Rating',  latest.rating != null ? Number(latest.rating).toFixed(1) + '★' : '-', '') +
+    statRow('Photos',  latest.photo_count != null ? latest.photo_count : '-', '') +
+    statRow('AI rank', '-', '') +
     '</div></div>';
 
   var compCards = competitors.slice(0, 3).map(function(c, i) {
-    var cScore = c.googleScore != null ? c.googleScore : (c.score != null ? c.score : '—');
+    var cScore = c.googleScore != null ? c.googleScore : (c.score != null ? c.score : '-');
     var youScore = typeof myScore === 'number' ? myScore : -1;
     var compScore = typeof cScore === 'number' ? cScore : -1;
     return '<div class="comp-card-v6">' +
@@ -2255,10 +2255,10 @@ function populateCompetitors(latest, plan, insights) {
       '<div class="comp-name">' + escH(c.name || 'Competitor ' + (i + 1)) + '</div>' +
       '<div class="comp-score">' + cScore + '<span class="of">/100</span></div>' +
       '<div class="comp-stats">' +
-      statRow('Reviews', c.reviewCount != null ? c.reviewCount : '—', compScore > youScore && youScore >= 0 ? 'down' : '') +
-      statRow('Rating',  c.rating != null ? Number(c.rating).toFixed(1) + '★' : '—', '') +
-      statRow('Photos',  c.photoCount != null ? c.photoCount : '—', '') +
-      statRow('AI rank', '—', '') +
+      statRow('Reviews', c.reviewCount != null ? c.reviewCount : '-', compScore > youScore && youScore >= 0 ? 'down' : '') +
+      statRow('Rating',  c.rating != null ? Number(c.rating).toFixed(1) + '★' : '-', '') +
+      statRow('Photos',  c.photoCount != null ? c.photoCount : '-', '') +
+      statRow('AI rank', '-', '') +
       '</div></div>';
   }).join('');
 
@@ -2315,7 +2315,7 @@ function populateAlerts(latest) {
 
   if (latest.rating != null && Number(latest.rating) < 4.0) {
     alerts.push({ cls:'ai-rank', icon:'⚠', impact:'High',
-      text:'Your Google rating is <strong>' + Number(latest.rating).toFixed(1) + '★</strong> — below the 4.0 trust threshold patients filter by.' });
+      text:'Your Google rating is <strong>' + Number(latest.rating).toFixed(1) + '★</strong> - below the 4.0 trust threshold patients filter by.' });
   }
   if (myRev != null && myRev < 30) {
     alerts.push({ cls:'ai-rev', icon:'★', impact:'High',
@@ -2342,7 +2342,7 @@ function populateTasks(insights) {
   var c = el('tasks-content');
   var fixes = insights && Array.isArray(insights.fixes) ? insights.fixes : [];
   if (!fixes.length) {
-    c.innerHTML = generatingCard('✓', 'Priority fixes generating', 'Your personalised, specialty-specific fixes — each with copy-paste text and an impact estimate — appear here.');
+    c.innerHTML = generatingCard('✓', 'Priority fixes generating', 'Your personalised, specialty-specific fixes - each with copy-paste text and an impact estimate - appear here.');
     return;
   }
   c.innerHTML = fixes.map(function(f, i){
@@ -2380,7 +2380,7 @@ function populateContent(specialty, insights) {
   var c  = el('content-content');
   var cs = insights && insights.contentStrategy ? insights.contentStrategy : null;
   if (!cs) {
-    c.innerHTML = generatingCard('🎬', 'Content pack generating', 'Specialty-matched content pillars, Reel hooks, and blog titles — ready to publish — appear here.');
+    c.innerHTML = generatingCard('🎬', 'Content pack generating', 'Specialty-matched content pillars, Reel hooks, and blog titles - ready to publish - appear here.');
     return;
   }
   var pillars   = Array.isArray(cs.pillars) ? cs.pillars : [];
@@ -2436,7 +2436,7 @@ function populateReviews(latest) {
     '<div class="review-card">' +
     '<div class="review-progress">' +
     '<div><div class="review-stat-label">Your reviews</div><div class="review-stat-num">' + myCount + '</div><div class="review-stat-sub">Google Reviews</div></div>' +
-    (topComp ? '<div><div class="review-stat-label">Top competitor</div><div class="review-stat-num">' + (topCount != null ? topCount : '—') + '</div><div class="review-stat-sub">' + escH(topComp.name || '') + '</div></div>' : '') +
+    (topComp ? '<div><div class="review-stat-label">Top competitor</div><div class="review-stat-num">' + (topCount != null ? topCount : '-') + '</div><div class="review-stat-sub">' + escH(topComp.name || '') + '</div></div>' : '') +
     (catchTarget ? '<div><div class="review-stat-label">Catch-up target</div><div class="review-stat-num">' + catchTarget.reviewCount + '</div><div class="review-stat-sub">' + escH(catchTarget.name || '') + '</div></div>' : '') +
     '<div><div class="review-stat-label">Velocity target</div><div class="review-stat-num">' + velocity + '/wk</div><div class="review-stat-sub">' + (needed != null && weeksToGo ? '~' + weeksToGo + ' weeks to catch' : 'You\'re in the lead') + '</div></div>' +
     '</div>' +
@@ -2462,9 +2462,9 @@ function populateReputation(insights) {
     return;
   }
   var rows = [
-    { label: '5-star — positive review', key: 'positive', stars: '★★★★★' },
-    { label: '3-star — mixed review',    key: 'neutral',  stars: '★★★☆☆' },
-    { label: '1–2 star — critical review', key: 'critical', stars: '★☆☆☆☆' },
+    { label: '5-star - positive review', key: 'positive', stars: '★★★★★' },
+    { label: '3-star - mixed review',    key: 'neutral',  stars: '★★★☆☆' },
+    { label: '1–2 star - critical review', key: 'critical', stars: '★☆☆☆☆' },
   ];
   c.innerHTML = '<div class="reputation-card" style="border-left-color:var(--green)">' +
     rows.filter(function(r){ return rt[r.key]; }).map(function(r){
@@ -2502,7 +2502,7 @@ function populateJourney(insights) {
   var pj = insights && insights.patientJourney ? insights.patientJourney : null;
   var stages = pj && Array.isArray(pj.stages) ? pj.stages : [];
   if (!stages.length) {
-    c.innerHTML = generatingCard('🧭', 'Patient journey generating', 'A 5-stage audit of how patients find and choose you — with the gaps to fix — appears here.');
+    c.innerHTML = generatingCard('🧭', 'Patient journey generating', 'A 5-stage audit of how patients find and choose you - with the gaps to fix - appears here.');
     return;
   }
   c.innerHTML = '<div class="journey-card"><div class="journey-stages">' +
@@ -2566,7 +2566,7 @@ function populateSeoHealth(latest) {
     });
   } else {
     ['GMB Profile','Reviews','Photos','Star Rating'].forEach(function(name){
-      items.push({ icon: '—', name: name, status: 'na', label: 'Awaiting data' });
+      items.push({ icon: '-', name: name, status: 'na', label: 'Awaiting data' });
     });
   }
   // Static items we can't determine from report data
@@ -2617,11 +2617,11 @@ function populateRoadmap(latest, insights) {
 
   var p1, p2, p3;
   if (!score || score < 50) {
-    p1 = { title: 'Foundation', goal: '+12 pts', tasks: ['Complete GMB profile — hours, services, description, attributes', 'Upload 10+ clinic photos', 'Claim Practo, JustDial, and Lybrate listings with consistent NAP', 'Set up WhatsApp review request workflow'] };
+    p1 = { title: 'Foundation', goal: '+12 pts', tasks: ['Complete GMB profile - hours, services, description, attributes', 'Upload 10+ clinic photos', 'Claim Practo, JustDial, and Lybrate listings with consistent NAP', 'Set up WhatsApp review request workflow'] };
     p2 = { title: 'Reviews + content authority', goal: '+8 pts', tasks: ['Reach 30+ Google reviews via WhatsApp request system', 'Publish 6 Google Business Posts on medical topics', 'Create 2 educational Instagram Reels', 'Respond to every review within 24 hours'] };
     p3 = { title: 'AI authority + competitive positioning', goal: 'Score 70+', tasks: ['Publish 2 long-form blog posts targeting local patient searches', 'Build 5 citations on medical directories', 'Record 2 patient testimonial videos', 'Engage with GBP Q&A to build authoritative answers'] };
   } else if (score < 70) {
-    p1 = { title: 'Accelerate reviews + photos', goal: '+8 pts', tasks: ['Reach 50+ Google reviews — use WhatsApp review request system', 'Upload 10 more clinic photos', 'Add services section to GMB profile', 'Publish 2 Google Business Posts per week'] };
+    p1 = { title: 'Accelerate reviews + photos', goal: '+8 pts', tasks: ['Reach 50+ Google reviews - use WhatsApp review request system', 'Upload 10 more clinic photos', 'Add services section to GMB profile', 'Publish 2 Google Business Posts per week'] };
     p2 = { title: 'Content + AI signal building', goal: '+6 pts', tasks: ['8 educational posts on your specialty topic this month', '3 Instagram Reels on patient-facing health topics', 'Build 4 citations on medical directories (Practo, Sehat, MediBuddy)', 'Respond to all reviews within 24 hours'] };
     p3 = { title: 'Competitive positioning + authority', goal: 'Score 82+', tasks: ['Publish 2 long-form blog posts targeting your city + specialty', 'Add 5+ GBP Q&A responses', 'Record 3 patient video testimonials', 'Monitor and respond to all competitor review spikes'] };
   } else {
@@ -2656,7 +2656,7 @@ function lockSection(contentId, title, desc) {
     '<div class="lock-icon">🔒</div>' +
     '<h3>' + escH(title) + '</h3>' +
     '<p>' + escH(desc) + '</p>' +
-    '<a href="/pages/checkout-subscription.html" class="locked-btn">Upgrade to Monitor ' + tdmPrice('monitor', '—', false) + '/mo →</a>' +
+    '<a href="/pages/checkout-subscription.html" class="locked-btn">Upgrade to Monitor ' + tdmPrice('monitor', '-', false) + '/mo →</a>' +
     '</div>';
 }
 

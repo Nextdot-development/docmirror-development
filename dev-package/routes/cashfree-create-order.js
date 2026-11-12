@@ -80,7 +80,7 @@ async function handler(req, res) {
     });
     if (!stored.ok) {
       const msg = stored.reason === 'schema_not_migrated'
-        ? 'Payments schema not migrated — apply database/migrations/017_cashfree_payments.sql.'
+        ? 'Payments schema not migrated - apply database/migrations/017_cashfree_payments.sql.'
         : 'Could not record the order before payment. Please retry.';
       console.error(`[cashfree-create] order row NOT stored order=${order.providerOrderId} reason=${stored.reason || 'unknown'}`);
       return res.status(503).json({ error: msg, code: stored.reason || 'ORDER_NOT_STORED' });

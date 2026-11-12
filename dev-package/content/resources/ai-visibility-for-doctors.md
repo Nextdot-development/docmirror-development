@@ -1,11 +1,11 @@
 ---
 title: AI Visibility for Doctors
-description: How your practice appears inside ChatGPT, Gemini, Claude, and AI search — and why it is quickly becoming as important as Google.
+description: How your practice appears inside ChatGPT, Gemini, Claude, and AI search - and why it is quickly becoming as important as Google.
 date: 2026-06-25
 author: The Doc Mirror
 category: AI Visibility
 image: /images/resources/ai-visibility-for-doctors.png
-imageAlt: AI Visibility for Doctors — be the doctor AI recommends
+imageAlt: AI Visibility for Doctors - be the doctor AI recommends
 tags: [AI Visibility, ChatGPT, Gemini, GEO]
 seoTitle: "AI Visibility for Doctors: ChatGPT, Gemini and Claude"
 metaDescription: "Learn how your practice appears inside ChatGPT, Gemini, Claude, and AI search, and why AI visibility is quickly becoming as important as Google."
@@ -20,7 +20,7 @@ faq:
     answer: For most practices, completing the Big-5 healthcare directories and earning two or three expert citations delivers the quickest gains. Consistent name, specialty, and location across every listing also raises the model's confidence in recommending you.
 ---
 
-Patients no longer start every search on Google. A growing share open ChatGPT, Gemini, or Claude and ask, in plain language, *"who is a good dermatologist near me?"* If the AI does not know your name, you are invisible to that patient — no matter how good your website is.
+Patients no longer start every search on Google. A growing share open ChatGPT, Gemini, or Claude and ask, in plain language, *"who is a good dermatologist near me?"* If the AI does not know your name, you are invisible to that patient - no matter how good your website is.
 
 ## Why AI visibility is different from SEO
 
@@ -37,7 +37,7 @@ Are you listed, completely and consistently, on the directories AI models are tr
 
 ### 2. Authority
 
-Are you cited in content the model considers trustworthy — medical publishers, news outlets, journals, hospital pages?
+Are you cited in content the model considers trustworthy - medical publishers, news outlets, journals, hospital pages?
 
 ### 3. Consistency
 
@@ -50,7 +50,7 @@ Do your name, specialty, and location match everywhere? Conflicting facts make a
 3. Note whether you appear, and who does.
 4. Repeat for two or three nearby cities.
 
-> If competitors appear and you do not, the gap is almost always in *presence* and *citations* — not in the quality of your care.
+> If competitors appear and you do not, the gap is almost always in *presence* and *citations* - not in the quality of your care.
 
 ## Where to focus first
 

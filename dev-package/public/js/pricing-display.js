@@ -59,7 +59,7 @@
   //   get('monitor', true)   -> the monitor price with its period suffix
   function get(product, full, fallback) {
     var p = window.TDM_PRICING && window.TDM_PRICING.prices && window.TDM_PRICING.prices[product];
-    if (!p) return fallback == null ? '—' : fallback;
+    if (!p) return fallback == null ? '-' : fallback;
     return full ? p.display : p.bare;
   }
 

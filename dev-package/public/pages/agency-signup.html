@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0A2540">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Start the Clinic / Agency plan — The Doc Mirror</title>
+<title>Start the Clinic / Agency plan - The Doc Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -79,7 +79,7 @@ input.err{border-color:var(--red);background:var(--red-light)}
   <div class="col">
     <div class="card" id="form-card">
       <h1 id="form-title">Create your agency account</h1>
-      <p class="subtitle" id="form-subtitle">One login for your whole practice. You&rsquo;ll add each doctor after checkout &mdash; no scan needed to get started.</p>
+      <p class="subtitle" id="form-subtitle">One login for your whole practice. You&rsquo;ll add each doctor after checkout - no scan needed to get started.</p>
 
       <div class="err-box" id="err-box" role="alert"></div>
       <button class="pay-btn" id="retry-btn" type="button" onclick="retryAgencySetup()"
@@ -89,7 +89,7 @@ input.err{border-color:var(--red);background:var(--red-light)}
            of an existing logged-in account) — skips signup entirely, uses that
            account's own token, never re-collects a password. -->
       <div id="logged-in-block" style="display:none">
-        <div class="session-note" id="session-note">Signed in as —</div>
+        <div class="session-note" id="session-note">Signed in as -</div>
         <button class="pay-btn" id="session-pay-btn" type="button" onclick="startAgencyCheckout()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           Continue to payment
@@ -134,7 +134,7 @@ input.err{border-color:var(--red);background:var(--red-light)}
     <div class="summary">
       <span class="badge">Multi-doctor</span>
       <h2>Clinic / Agency</h2>
-      <div class="price"><span data-price="agency">—</span></div>
+      <div class="price"><span data-price="agency">-</span></div>
       <div class="per">per month · cancel anytime</div>
       <!-- Currency toggle: region-aware pricing (lib/pricing.js) — this page had
            no way to pick USD before, so /api/agency/checkout always fell back to
@@ -144,7 +144,7 @@ input.err{border-color:var(--red);background:var(--red-light)}
         <button type="button" data-region="IN" onclick="setCurrency('IN')" style="font:inherit;font-size:12px;font-weight:700;padding:4px 10px;border:1px solid #d5dce5;border-radius:6px;background:#fff;color:#0A2540;cursor:pointer">INR ₹</button>
       </div>
       <ul>
-        <li><span class="tick">✓</span> Add up to <span data-plan-limit="agency">—</span> doctors</li>
+        <li><span class="tick">✓</span> Add up to <span data-plan-limit="agency">-</span> doctors</li>
         <li><span class="tick">✓</span> Each doctor gets their own dashboard</li>
         <li><span class="tick">✓</span> Everything in Monthly Monitor, for every doctor</li>
         <li><span class="tick">✓</span> Switch between doctors instantly</li>
@@ -225,7 +225,7 @@ async function supa() {
 // repeatedly: /api/agency/verify re-reads the subscription from Razorpay and
 // provisionAgencyOrg() finishes only whatever is still missing.
 async function retryAgencySetup() {
-  if (!_lastPayment) { showErr('Nothing to retry — please sign in and contact support.'); return; }
+  if (!_lastPayment) { showErr('Nothing to retry - please sign in and contact support.'); return; }
   if (!_token) {
     try { _token = localStorage.getItem('tdm_access_token') || ''; } catch (_) {}
   }
@@ -239,7 +239,7 @@ async function retryAgencySetup() {
     var v = await r.json().catch(function(){ return {}; });
     if (v.ok) {
       el('ok-msg').textContent =
-        'Add up to ' + v.profileLimit + ' doctors from your dashboard — each one gets their own view.';
+        'Add up to ' + v.profileLimit + ' doctors from your dashboard - each one gets their own view.';
       el('form-card').style.display = 'none';
       el('ok-card').classList.add('on');
       setTimeout(function(){ window.location.href = v.redirect || '/dashboard'; }, 2000);
@@ -251,7 +251,7 @@ async function retryAgencySetup() {
     msg += '<br><small>Support: <a href="mailto:thedocmirror@gmail.com">thedocmirror@gmail.com</a></small>';
     showErr(msg); showRetry(true); ready();
   } catch (e) {
-    showErr('Retry failed — please contact support.'); showRetry(true); ready();
+    showErr('Retry failed - please contact support.'); showRetry(true); ready();
   }
 }
 
@@ -268,7 +268,7 @@ async function initSession() {
 
   _token = accessToken;
   el('form-title').textContent = 'Start the Clinic / Agency plan';
-  el('form-subtitle').textContent = 'You’ll add each doctor after checkout — no scan needed to get started.';
+  el('form-subtitle').textContent = 'You’ll add each doctor after checkout - no scan needed to get started.';
   el('logged-out-block').style.display = 'none';
   el('logged-in-block').style.display = '';
   el('session-note').textContent = 'Signed in as ' + me.email;
@@ -379,7 +379,7 @@ async function proceedToCheckout(email) {
         key:             sub.keyId,
         subscription_id: sub.subscriptionId,
         name:            'The Doc Mirror',
-        description:     'Clinic / Agency — ' + (sub.display || ''),
+        description:     'Clinic / Agency - ' + (sub.display || ''),
         prefill:         { email: email },
         theme:           { color: '#0A2540' },
         handler: function (response) {
@@ -406,7 +406,7 @@ async function proceedToCheckout(email) {
               // because the org's profile_limit makes it a multi-profile org.
               showRetry(false);
               el('ok-msg').textContent =
-                'Add up to ' + v.profileLimit + ' doctors from your dashboard — each one gets their own view.';
+                'Add up to ' + v.profileLimit + ' doctors from your dashboard - each one gets their own view.';
               el('form-card').style.display = 'none';
               el('ok-card').classList.add('on');
               setTimeout(function(){ window.location.href = v.redirect || '/dashboard'; }, 2500);
@@ -429,7 +429,7 @@ async function proceedToCheckout(email) {
             ready();
           });
         },
-        modal: { ondismiss: function(){ showErr('Payment cancelled — your account is saved, you can pay any time.'); ready(); } }
+        modal: { ondismiss: function(){ showErr('Payment cancelled - your account is saved, you can pay any time.'); ready(); } }
       };
       // USD/INTL: cards only — UPI/NetBanking/wallets are India-only rails and
       // must never be offered for a non-INR charge. INR is left unrestricted.

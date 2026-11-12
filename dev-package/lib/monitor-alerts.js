@@ -55,13 +55,13 @@ function detectAlerts(prev, curr) {
       if (ch.reviewDelta >= COMPETITOR_REVIEW_THRESHOLD) {
         push('competitor_reviews', 'warning',
           `${ch.name} gained ${ch.reviewDelta} reviews`,
-          `${ch.name} added ${ch.reviewDelta} new reviews this week — they're actively collecting feedback.`,
+          `${ch.name} added ${ch.reviewDelta} new reviews this week - they're actively collecting feedback.`,
           { name: ch.name, reviewDelta: ch.reviewDelta });
       }
       if (ch.photoDelta >= 5) {
         push('competitor_photos', 'info',
           `${ch.name} added ${ch.photoDelta} photos`,
-          `${ch.name} uploaded ${ch.photoDelta} new photos — fresh media boosts their Google ranking.`,
+          `${ch.name} uploaded ${ch.photoDelta} new photos - fresh media boosts their Google ranking.`,
           { name: ch.name, photoDelta: ch.photoDelta });
       }
       if (ch.ratingDelta >= 0.2) {
@@ -80,7 +80,7 @@ function detectAlerts(prev, curr) {
   if (ratingDrop >= 0.1) {
     push('rating_drop', 'critical',
       'Your rating dropped',
-      `Your rating fell from ${num(prev.rating).toFixed(1)} to ${num(curr.rating).toFixed(1)} — check for new negative reviews and respond promptly.`,
+      `Your rating fell from ${num(prev.rating).toFixed(1)} to ${num(curr.rating).toFixed(1)} - check for new negative reviews and respond promptly.`,
       { from: num(prev.rating), to: num(curr.rating) });
   }
 
@@ -104,7 +104,7 @@ function detectAlerts(prev, curr) {
   if (num(curr.score) > 0 && num(curr.score) < num(prev.score)) {
     push('visibility_drop', 'warning',
       'Overall visibility dropped',
-      `Your overall visibility score went from ${num(prev.score)} to ${num(curr.score)} — review this week's report for the cause.`,
+      `Your overall visibility score went from ${num(prev.score)} to ${num(curr.score)} - review this week's report for the cause.`,
       { from: num(prev.score), to: num(curr.score) });
   }
 

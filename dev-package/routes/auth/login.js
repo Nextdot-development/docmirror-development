@@ -44,7 +44,7 @@ async function handler(req, res) {
     // Supabase stalls. Surface a 503 so the user retries instead of doubting creds.
     if (error && isTransientAuthError(error)) {
       console.error(`[auth/login] SERVICE error email=${email} (${Date.now() - t0}ms): ${error.message}`);
-      return res.status(503).json({ success: false, error: 'Login service is busy right now — please try again in a moment.', retryable: true });
+      return res.status(503).json({ success: false, error: 'Login service is busy right now - please try again in a moment.', retryable: true });
     }
     console.log(`[auth/login] invalid creds email=${email} (${Date.now() - t0}ms) reason=${error?.message || 'no session'}`);
     return res.status(401).json({ success: false, error: 'Invalid email or password' });

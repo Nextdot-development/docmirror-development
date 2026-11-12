@@ -439,7 +439,7 @@
     var templates = [
       function (e) { return 'Learn about ' + topic + ': ' + lcFirst(e) + '.'; },
       function (e) { return cap(e) + '. Learn what to do about ' + topic + ' next.'; },
-      function (e) { return 'Discover ' + topic + ' — ' + lcFirst(e) + '.'; },
+      function (e) { return 'Discover ' + topic + ' - ' + lcFirst(e) + '.'; },
       function (e) { return 'Get clear answers on ' + topic + ': ' + lcFirst(e) + '.'; },
     ];
     if (excerptHasKw) templates.unshift(function (e) { return cap(e) + '. Learn what to do next.'; });

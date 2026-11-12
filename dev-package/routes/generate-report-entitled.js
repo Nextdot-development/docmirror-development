@@ -112,7 +112,7 @@ async function handler(req, res) {
   if (!auditReady) {
     return res.status(200).json({
       ok: true, entitled: true, generating: false, tier: ent.tier,
-      message: 'Unlocked — included in your plan.',
+      message: 'Unlocked - included in your plan.',
     });
   }
 
@@ -157,7 +157,7 @@ async function handler(req, res) {
     generating: true,
     reportId: auditId,
     tier: ent.tier,
-    message: 'Your report is generating — it will unlock here and appear in Reports & PDFs shortly.',
+    message: 'Your report is generating - it will unlock here and appear in Reports & PDFs shortly.',
   });
 }
 
