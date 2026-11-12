@@ -5,6 +5,20 @@
       "includeFiles": "public/**"
     }
   },
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.thedocmirror.com" }],
+      "destination": "https://thedocmirror.com/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path((?!api/).*)",
+      "has": [{ "type": "host", "value": "www.thedocmirror.com" }],
+      "destination": "https://thedocmirror.com/:path",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
